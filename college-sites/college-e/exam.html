@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exam Portal | College E – Central Region</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Segoe UI',sans-serif; background:#0f172a; color:#e2e8f0; min-height:100vh; }
+    .risk-strip { background:#7f1d1d;padding:7px 40px;text-align:center;font-size:11px;font-weight:700;color:#fecaca; }
+    header { background:#1f0a0a;border-bottom:3px solid #7c3aed;padding:0 40px; }
+    .header-inner { max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:64px; }
+    .logo { display:flex;align-items:center;gap:10px;text-decoration:none;color:#fff; }
+    .logo-icon { width:38px;height:38px;background:#7c3aed;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px; }
+    .logo h1 { font-size:15px;font-weight:700; }
+    nav a { color:#c4b5fd;text-decoration:none;margin-left:20px;font-size:13px; }
+
+    .banner { background:linear-gradient(135deg,#2d1f4e,#1e1b4b);padding:28px 40px;border-bottom:1px solid #4c1d95; }
+    .banner-inner { max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:20px; }
+    .banner h2 { font-size:22px;font-weight:800;color:#fff;margin-bottom:6px; }
+    .banner p { font-size:13px;color:#c4b5fd; }
+    .server-badge { background:rgba(239,68,68,0.15);border:2px solid rgba(239,68,68,0.5);border-radius:8px;padding:12px 16px;font-size:12px;text-align:right;min-width:200px; }
+    .server-badge .server-name { color:#fca5a5;font-weight:700;font-family:monospace; }
+    .server-badge .server-ip  { color:#ef4444;font-family:monospace;font-size:11px; }
+    .unpatched-warning { color:#f97316;font-size:10px;margin-top:4px;font-weight:700; }
+
+    .main { max-width:1200px;margin:0 auto;padding:28px 40px; }
+
+    /* Shared exam notice */
+    .shared-notice { background:rgba(249,115,22,0.08);border:1px solid rgba(249,115,22,0.4);border-radius:8px;padding:12px 16px;margin-bottom:20px;font-size:12px;display:flex;align-items:center;gap:10px; }
+    .shared-notice strong { color:#fb923c; }
+
+    .search-bar { background:#1e293b;border:1px solid #334155;border-radius:10px;padding:14px 18px;margin-bottom:20px;display:flex;gap:12px;align-items:center; }
+    .search-bar input { flex:1;background:#0f172a;border:1px solid #334155;border-radius:6px;padding:10px 14px;color:#e2e8f0;font-size:13px;outline:none; }
+    .search-bar input:focus { border-color:#7c3aed; }
+    .btn { padding:10px 18px;border-radius:6px;border:none;cursor:pointer;font-size:13px;font-weight:600; }
+    .btn-purple { background:#7c3aed;color:#fff; }
+    .btn-outline { background:transparent;border:1px solid #334155;color:#94a3b8; }
+
+    .grid { display:grid;grid-template-columns:1fr 1fr;gap:18px; }
+    .card { background:#1e293b;border:1px solid #334155;border-radius:12px;overflow:hidden; }
+    .card-header { padding:13px 18px;border-bottom:1px solid #334155;display:flex;align-items:center;justify-content:space-between; }
+    .card-title { font-size:14px;font-weight:700; }
+    .card-body { padding:18px; }
+    .badge { padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600; }
+    .badge-green { background:rgba(16,185,129,0.15);color:#10b981; }
+    .badge-red { background:rgba(239,68,68,0.15);color:#ef4444; }
+    .badge-yellow { background:rgba(234,179,8,0.12);color:#fbbf24; }
+    .badge-orange { background:rgba(249,115,22,0.15);color:#fb923c; }
+
+    .exam-table { width:100%;border-collapse:collapse;font-size:12px; }
+    .exam-table th { padding:9px 12px;text-align:left;color:#64748b;font-weight:600;border-bottom:1px solid #334155; }
+    .exam-table td { padding:9px 12px;border-bottom:1px solid #1e293b;color:#94a3b8; }
+    .exam-table td:first-child { color:#e2e8f0;font-weight:500; }
+    .exam-table tr:last-child td { border-bottom:none; }
+
+    .form-group label { font-size:12px;font-weight:600;color:#94a3b8;display:block;margin-bottom:6px; }
+    .form-group { margin-bottom:14px; }
+    .form-group input, .form-group select { width:100%;background:#0f172a;border:1px solid #334155;border-radius:6px;padding:10px 12px;color:#e2e8f0;font-size:13px;outline:none; }
+    .form-group input:focus, .form-group select:focus { border-color:#7c3aed; }
+    #hall-result { margin-top:10px;padding:12px;border-radius:8px;font-size:12px;display:none; }
+    #hall-result.danger  { background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.4);color:#ef4444; }
+    #hall-result.success { background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.4);color:#10b981; }
+    #search-result { margin-bottom:14px;font-size:13px; }
+    footer { background:#0a0a0a;border-top:1px solid #1e293b;padding:14px 40px;text-align:center;font-size:11px;color:#475569;margin-top:32px; }
+  </style>
+</head>
+<body>
+
+<div class="risk-strip">🔴 HIGH RISK: This college shares the UNPATCHED Exam Server (NEDI-EXAM-APP-01 · 10.0.1.11 · 120 days overdue) — Monitored by CyberShield SOC</div>
+
+<header>
+  <div class="header-inner">
+    <a href="index.html" class="logo">
+      <div class="logo-icon">📝</div>
+      <div>
+        <h1>College E — Exam Portal</h1>
+        <span style="font-size:10px;color:#c4b5fd;">Bhopal, Madhya Pradesh</span>
+      </div>
+    </a>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="login.html">Student Login</a>
+      <a href="faculty.html">Faculty</a>
+      <a href="erp.html">Admin/ERP</a>
+    </nav>
+  </div>
+</header>
+
+<div class="banner">
+  <div class="banner-inner">
+    <div>
+      <h2>📝 Examination Services — College E</h2>
+      <p>Hall Tickets · Results · Timetables · Registration — November 2026 Examinations</p>
+    </div>
+    <div class="server-badge">
+      <div class="server-name">NEDI-EXAM-APP-01</div>
+      <div class="server-ip">10.0.1.11 (App) · 10.0.1.12 (DB)</div>
+      <div class="unpatched-warning">⚠️ SHARED SERVER — UNPATCHED 120d — HIGH RISK</div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="shared-notice">
+    ⚠️ <div><strong>Shared Infrastructure Notice:</strong> College E uses the central NEDI Exam Server (10.0.1.11), which is currently flagged HIGH RISK due to 120 days without a security patch. This affects exam data for all institutions on this server including College A (Chennai).</div>
+  </div>
+
+  <div class="search-bar">
+    <input type="text" id="search-input" placeholder="Enter Enrollment Number or Name to search exam records...">
+    <button class="btn btn-purple" onclick="searchExam()">🔍 Search</button>
+    <button class="btn btn-outline" onclick="document.getElementById('search-input').value='';document.getElementById('search-result').innerHTML=''">Clear</button>
+  </div>
+  <div id="search-result"></div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">📅 Nov 2026 Exam Schedule</span>
+        <span class="badge badge-orange">HIGH RISK Server</span>
+      </div>
+      <div class="card-body" style="padding:0;">
+        <table class="exam-table">
+          <thead><tr><th>Subject</th><th>Code</th><th>Date</th><th>Time</th></tr></thead>
+          <tbody>
+            <tr><td>Environmental Science</td><td>BS3101</td><td>Nov 3</td><td>9:00 AM</td></tr>
+            <tr><td>Business Mathematics</td><td>CM3102</td><td>Nov 5</td><td>9:00 AM</td></tr>
+            <tr><td>Accountancy III</td><td>CM3103</td><td>Nov 7</td><td>9:00 AM</td></tr>
+            <tr><td>Economics</td><td>BA3104</td><td>Nov 10</td><td>2:00 PM</td></tr>
+            <tr><td>Computer Applications</td><td>CA3105</td><td>Nov 12</td><td>9:00 AM</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">🎟️ Hall Ticket Download</span>
+        <span class="badge badge-yellow">Auth Required</span>
+      </div>
+      <div class="card-body">
+        <form onsubmit="downloadHallTicket(event)">
+          <div class="form-group">
+            <label>Enrollment Number</label>
+            <input type="text" id="ht-roll" placeholder="e.g. 0801CS22001">
+          </div>
+          <div class="form-group">
+            <label>Date of Birth</label>
+            <input type="text" id="ht-dob" placeholder="DD/MM/YYYY">
+          </div>
+          <div class="form-group">
+            <label>Semester</label>
+            <select id="ht-sem">
+              <option>Semester III — Nov 2026</option>
+              <option>Semester I — Nov 2026</option>
+              <option>Semester V — Nov 2026</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-purple" style="width:100%">Download Hall Ticket</button>
+          <div id="hall-result"></div>
+        </form>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">📊 Recent Results — May 2026</span>
+        <span class="badge badge-green">Published</span>
+      </div>
+      <div class="card-body" style="padding:0;">
+        <table class="exam-table">
+          <thead><tr><th>Subject</th><th>Code</th><th>Max</th><th>Result</th></tr></thead>
+          <tbody>
+            <tr><td>History of India</td><td>BA3201</td><td>100</td><td><span class="badge badge-green">PASS</span></td></tr>
+            <tr><td>Political Science</td><td>BA3202</td><td>100</td><td><span class="badge badge-green">PASS</span></td></tr>
+            <tr><td>English Literature</td><td>BA3203</td><td>100</td><td><span class="badge badge-red">ARREAR</span></td></tr>
+            <tr><td>Sociology</td><td>BA3204</td><td>100</td><td><span class="badge badge-green">PASS</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">🛠️ Exam Services</span>
+      </div>
+      <div class="card-body" style="display:grid;gap:8px;">
+        <button class="btn btn-outline" style="text-align:left;padding:10px 14px;" onclick="triggerService('fee')">💳 Exam Fee Payment</button>
+        <button class="btn btn-outline" style="text-align:left;padding:10px 14px;" onclick="triggerService('revaluation')">📋 Apply for Revaluation</button>
+        <button class="btn btn-outline" style="text-align:left;padding:10px 14px;" onclick="triggerService('provisional')">📄 Provisional Certificate</button>
+        <div style="font-size:10px;color:#64748b;padding:8px;border:1px dashed #334155;border-radius:6px;margin-top:4px;">
+          ⚠️ All requests processed on NEDI-EXAM-APP-01 (10.0.1.11) — UNPATCHED. This server is actively monitored by CyberShield SOC.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  College E – Central Region, Bhopal · Exam Server: NEDI-EXAM-APP-01 (10.0.1.11) · DB: NEDI-EXAM-DB-01 (10.0.1.12) · Status: HIGH RISK · Protected by CyberShield NEDI SOC
+</footer>
+
+<script src="college-beacon.js"></script>
+<script>
+  autoBeacon('COL-E-CENTRAL', 'College E - Central Region', 'exam', 'EXAM_ACCESS');
+
+  async function searchExam() {
+    const val = document.getElementById('search-input').value;
+    const resultEl = document.getElementById('search-result');
+    if (!val) return;
+    const result = await formBeacon('COL-E-CENTRAL', 'College E - Central Region', 'exam', val, '');
+    if (result) showDetectionToast(result);
+    if (result && result.riskScore >= 60) {
+      resultEl.innerHTML = `<span style="color:#ef4444;">🚫 Blocked: ${result.eventType} detected. Score: ${result.riskScore}/100. Incident logged.</span>`;
+    } else {
+      resultEl.innerHTML = `<span style="color:#64748b;">No results for "<b style="color:#e2e8f0;">${val}</b>". Check enrollment number.</span>`;
+    }
+  }
+
+  async function downloadHallTicket(e) {
+    e.preventDefault();
+    const roll = document.getElementById('ht-roll').value;
+    const dob  = document.getElementById('ht-dob').value;
+    const box  = document.getElementById('hall-result');
+    const result = await formBeacon('COL-E-CENTRAL', 'College E - Central Region', 'exam', roll, dob);
+    if (result) showDetectionToast(result);
+    box.style.display = 'block';
+    if (result && result.riskScore >= 60) {
+      box.className = 'danger';
+      box.innerHTML = `🚫 Blocked: ${result.eventType} · Score: ${result.riskScore}/100`;
+    } else {
+      box.className = 'success';
+      box.textContent = '✅ Hall ticket verified. Download starting...';
+    }
+  }
+
+  async function triggerService(svc) {
+    const result = await sendBeacon({
+      institutionCode:'COL-E-CENTRAL', collegeName:'College E - Central Region',
+      page:'exam', eventType:'EXAM_ACCESS', inputPayload:svc, attackerIp:'auto-detected'
+    });
+    if (result) showDetectionToast(result);
+    alert(`${svc} accessed on HIGH RISK server 10.0.1.11. CyberShield has logged this.`);
+  }
+</script>
+</body>
+</html>

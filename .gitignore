@@ -1,0 +1,8 @@
+target/
+data/
+*.log
+.idea/
+*.iml
+.vscode/
+attack-scripts/__pycache__/
+*.class

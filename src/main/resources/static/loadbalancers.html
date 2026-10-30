@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Load Balancers & Ingress Gateways — CyberShield Nexus</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .kpi-val { font-size: 24px; font-weight: 700; color: var(--text-primary); }
+    .kpi-lbl { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-muted); }
+    .badge-ingress {
+      background: rgba(0, 212, 255, 0.15);
+      border: 1px solid rgba(0, 212, 255, 0.4);
+      color: var(--accent);
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .badge-internal {
+      background: rgba(168, 85, 247, 0.15);
+      border: 1px solid rgba(168, 85, 247, 0.4);
+      color: #c084fc;
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .badge-l4 {
+      background: rgba(234, 179, 8, 0.15);
+      border: 1px solid rgba(234, 179, 8, 0.4);
+      color: #facc15;
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+  </style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-brand"><h1>CyberShield Nexus</h1><span>NEDI AI Cyber Command</span></div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <a href="/dashboard.html" class="nav-item"><span class="icon">📊</span> Dashboard</a>
+    <div class="nav-section-label">Assets</div>
+    <a href="/servers.html" class="nav-item"><span class="icon">🖥️</span> Servers</a>
+    <a href="/firewalls.html" class="nav-item"><span class="icon">🔥</span> Firewalls</a>
+    <a href="/loadbalancers.html" class="nav-item active"><span class="icon">⚖️</span> Load Balancers</a>
+    <a href="/licenses.html" class="nav-item"><span class="icon">📋</span> Licenses</a>
+    <a href="/hardware.html" class="nav-item"><span class="icon">⚙️</span> Hardware</a>
+    <div class="nav-section-label">Security</div>
+    <a href="/incidents.html" class="nav-item"><span class="icon">🚨</span> Incidents</a>
+    <a href="/risk.html" class="nav-item"><span class="icon">📈</span> Risk & Attack Path</a>
+    <a href="/audit-log.html" class="nav-item"><span class="icon">📜</span> Audit Log</a>
+    <a href="/users.html" id="nav-users" class="nav-item"><span class="icon">👤</span> Users & Roles</a>
+    <div class="nav-section-label">Tools</div>
+    <a href="/phishing-detector.html" class="nav-item"><span class="icon">🎣</span> Phishing Detector</a>
+  </nav>
+  <div class="sidebar-footer"><button onclick="logout()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:12px;">⏏ Sign Out</button></div>
+</aside>
+<header class="topbar">
+  <span class="topbar-title">Ingress & Load Balancer Management</span>
+  <div class="topbar-right">
+    <div class="topbar-user">
+      <div class="user-avatar" id="topbar-avatar">A</div>
+      <div><div style="font-weight:600;font-size:13px" id="topbar-username"></div>
+      <div style="font-size:10px;color:var(--text-muted)" id="topbar-role"></div></div>
+    </div>
+  </div>
+</header>
+<main class="main-content">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h2 style="font-size:20px;font-weight:700">Load Balancers & Ingress Gateways</h2>
+      <p style="color:var(--text-muted);font-size:13px;margin-top:2px">Edge Ingress proxies, TLS offloading, high-availability clustering, and live backend pool health</p>
+    </div>
+    <button class="btn btn-primary" id="add-lb-btn" onclick="openAdd()">＋ Add Load Balancer</button>
+  </div>
+
+  <!-- KPI Metric Overview -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <span class="kpi-lbl">Total Load Balancers</span>
+      <span class="kpi-val" id="kpi-total">0</span>
+      <span style="font-size:11px;color:var(--text-muted)">Cluster active instances</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-lbl">Ingress Edge Gateways</span>
+      <span class="kpi-val" style="color:var(--accent)" id="kpi-ingress">0</span>
+      <span style="font-size:11px;color:var(--text-muted)">Public perimeter ingress (L7)</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-lbl">Active Virtual IPs</span>
+      <span class="kpi-val" style="color:var(--accent-green)" id="kpi-active">0</span>
+      <span style="font-size:11px;color:var(--text-muted)">Nominal HA availability</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-lbl">Backend Pool Targets</span>
+      <span class="kpi-val" style="color:var(--accent-orange)" id="kpi-backends">0/0</span>
+      <span style="font-size:11px;color:var(--text-muted)">Healthy / Registered targets</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header" style="flex-wrap:wrap;gap:12px;">
+      <span class="card-title" id="lb-count">Load Balancers</span>
+      <div class="flex gap-2 items-center" style="margin-left:auto;">
+        <button class="btn btn-sm btn-secondary filter-btn active" onclick="setFilter('all', this)">All</button>
+        <button class="btn btn-sm btn-secondary filter-btn" onclick="setFilter('ingress', this)">🌐 Ingress Only</button>
+        <button class="btn btn-sm btn-secondary filter-btn" onclick="setFilter('active', this)">🟢 Active</button>
+        <button class="btn btn-sm btn-secondary filter-btn" onclick="setFilter('degraded', this)">🟡 Degraded/Maint</button>
+        <input type="text" id="lb-search" class="form-control" style="width:200px;padding:5px 10px;font-size:12px;" placeholder="🔍 Search LB or VIP..." oninput="applyFilter()">
+      </div>
+    </div>
+    <div class="table-wrapper">
+      <div id="loading"><div class="spinner"></div></div>
+      <table id="lb-table" style="display:none">
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Load Balancer / Ingress Name</th>
+            <th>Virtual IP</th>
+            <th>Algorithm</th>
+            <th>Status</th>
+            <th>Health Check</th>
+            <th>Backends</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="lb-body"></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<!-- Add/Edit Load Balancer modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-title">Add Load Balancer</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="lb-id">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group" style="grid-column:1/-1"><label class="form-label">Name & Identifier *</label><input class="form-control" id="f-name" required placeholder="NEDI-INGRESS-LB-01 (External Edge Ingress)"></div>
+        <div class="form-group"><label class="form-label">Virtual IP (VIP) *</label><input class="form-control" id="f-vip" required placeholder="10.0.0.100"></div>
+        <div class="form-group"><label class="form-label">Algorithm</label>
+          <select class="form-control" id="f-algorithm"><option>ROUND_ROBIN</option><option>LEAST_CONNECTIONS</option><option>IP_HASH</option><option>WEIGHTED</option></select></div>
+        <div class="form-group"><label class="form-label">Status</label>
+          <select class="form-control" id="f-status"><option>ACTIVE</option><option>INACTIVE</option><option>MAINTENANCE</option><option>DEGRADED</option></select></div>
+        <div class="form-group"><label class="form-label">Health Check Path</label><input class="form-control" id="f-healthpath" placeholder="/healthz or /actuator/health"></div>
+        <div class="form-group"><label class="form-label">Check Interval (sec)</label><input class="form-control" id="f-interval" type="number" value="15"></div>
+        <div class="form-group" style="grid-column:1/-1"><label class="form-label">Architecture & Ingress Notes</label><input class="form-control" id="f-notes" placeholder="e.g. Edge Ingress proxy with TLS termination & WAF filtering"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="save()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Backend pool modal -->
+<div class="modal-overlay" id="backends-modal">
+  <div class="modal" style="max-width:720px">
+    <div class="modal-header">
+      <div>
+        <span class="modal-title" id="backends-modal-title">Backend Pool</span>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Target host distribution & health probe monitoring</div>
+      </div>
+      <button class="modal-close" onclick="closeBackendsModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="table-wrapper" style="margin-bottom:16px">
+        <table>
+          <thead><tr><th>Target Name</th><th>IP Address</th><th>Port</th><th>Weight</th><th>Health Status</th><th></th></tr></thead>
+          <tbody id="backends-body"></tbody>
+        </table>
+      </div>
+      <div style="border-top:1px solid var(--border);padding-top:14px" id="add-backend-section">
+        <div style="font-size:13px;font-weight:600;margin-bottom:8px">Register Target Server</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px">
+          <div class="form-group"><label class="form-label">Target Name *</label><input class="form-control" id="b-name" placeholder="NEDI-STUDENT-WEB-02"></div>
+          <div class="form-group"><label class="form-label">Target IP</label><input class="form-control" id="b-ip" placeholder="10.0.1.15"></div>
+          <div class="form-group"><label class="form-label">Port</label><input class="form-control" id="b-port" type="number" value="443"></div>
+          <div class="form-group"><label class="form-label">Weight</label><input class="form-control" id="b-weight" type="number" value="3"></div>
+        </div>
+        <button class="btn btn-primary" onclick="addBackend()" style="margin-top:6px;">＋ Add Backend</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeBackendsModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+<script src="/js/auth.js"></script>
+<script>
+  requireAuth(); renderTopbarUser();
+  let loadBalancers = [];
+  let backendCache = {};
+  let currentFilter = 'all';
+
+  function getTypeBadge(lb) {
+    const name = (lb.name || '').toUpperCase();
+    const notes = (lb.notes || '').toUpperCase();
+    if (name.includes('INGRESS') || notes.includes('INGRESS') || name.includes('EDGE')) {
+      return '<span class="badge-ingress">INGRESS (L7)</span>';
+    }
+    if (name.includes('DB') || notes.includes('LAYER 4') || notes.includes('TCP')) {
+      return '<span class="badge-l4">NETWORK (L4)</span>';
+    }
+    return '<span class="badge-internal">INTERNAL (L7)</span>';
+  }
+
+  async function load() {
+    try {
+      loadBalancers = await apiGet('/loadbalancers');
+      if (!Array.isArray(loadBalancers)) loadBalancers = [loadBalancers];
+      
+      // Fetch backend counts for KPIs
+      let totalBackends = 0;
+      let healthyBackends = 0;
+      await Promise.all(loadBalancers.map(async lb => {
+        try {
+          const backends = await apiGet(`/loadbalancers/${lb.id}/backends`);
+          backendCache[lb.id] = backends;
+          totalBackends += backends.length;
+          healthyBackends += backends.filter(b => b.healthy).length;
+        } catch(e) { backendCache[lb.id] = []; }
+      }));
+
+      // Update KPI strip
+      const ingressCount = loadBalancers.filter(lb => 
+        (lb.name||'').toUpperCase().includes('INGRESS') || (lb.notes||'').toUpperCase().includes('INGRESS')
+      ).length;
+      const activeCount = loadBalancers.filter(lb => lb.status === 'ACTIVE').length;
+
+      document.getElementById('kpi-total').textContent = loadBalancers.length;
+      document.getElementById('kpi-ingress').textContent = ingressCount;
+      document.getElementById('kpi-active').textContent = activeCount;
+      document.getElementById('kpi-backends').textContent = `${healthyBackends}/${totalBackends}`;
+
+      applyFilter();
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('lb-table').style.display = '';
+    } catch (e) { toast('Failed to load load balancers: ' + e.message, 'error'); }
+  }
+
+  function setFilter(filter, el) {
+    currentFilter = filter;
+    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+    if (el) el.classList.add('active');
+    applyFilter();
+  }
+
+  function applyFilter() {
+    const search = (document.getElementById('lb-search').value || '').toLowerCase();
+    const filtered = loadBalancers.filter(lb => {
+      // Type/Status filter
+      if (currentFilter === 'ingress') {
+        const isIngress = (lb.name||'').toUpperCase().includes('INGRESS') || (lb.notes||'').toUpperCase().includes('INGRESS');
+        if (!isIngress) return false;
+      } else if (currentFilter === 'active' && lb.status !== 'ACTIVE') {
+        return false;
+      } else if (currentFilter === 'degraded' && lb.status !== 'DEGRADED' && lb.status !== 'MAINTENANCE') {
+        return false;
+      }
+
+      // Search text match
+      if (search) {
+        const matchName = (lb.name||'').toLowerCase().includes(search);
+        const matchVip = (lb.virtualIp||'').toLowerCase().includes(search);
+        const matchAlgo = (lb.algorithm||'').toLowerCase().includes(search);
+        const matchNotes = (lb.notes||'').toLowerCase().includes(search);
+        return matchName || matchVip || matchAlgo || matchNotes;
+      }
+      return true;
+    });
+
+    render(filtered);
+    document.getElementById('lb-count').textContent = `Load Balancers (${filtered.length} of ${loadBalancers.length})`;
+  }
+
+  function render(data) {
+    const isV = isViewer();
+    const isA = isAdmin();
+    const isSA = isServerAdmin();
+
+    const addBtn = document.getElementById('add-lb-btn');
+    if (addBtn) addBtn.style.display = isV ? 'none' : '';
+
+    const rows = data.map(lb => {
+      const backends = backendCache[lb.id] || [];
+      const healthy = backends.filter(b => b.healthy).length;
+      const total = backends.length;
+      let backendSummary = total > 0 
+        ? `<span class="badge ${healthy === total ? 'badge-green' : (healthy === 0 ? 'badge-red' : 'badge-orange')}">${healthy}/${total} healthy</span>`
+        : '<span style="color:var(--text-muted);font-size:11px">0 targets</span>';
+
+      let actions = `<button class="btn btn-sm btn-secondary" onclick="openBackends(${lb.id}, '${lb.name.replace(/'/g, "&#39;")}')">⚖️ Backends</button>`;
+      if (isA) {
+        actions = `
+          <button class="btn btn-sm btn-secondary" onclick="edit(${lb.id})">✏ Edit</button>
+          <button class="btn btn-sm btn-secondary" onclick="openBackends(${lb.id}, '${lb.name.replace(/'/g, "&#39;")}')" style="margin-left:4px">⚖️ Backends</button>
+          <button class="btn btn-sm btn-danger" onclick="del(${lb.id})" style="margin-left:4px">🗑</button>
+        `;
+      } else if (isSA) {
+        actions = `
+          <button class="btn btn-sm btn-secondary" onclick="edit(${lb.id})">✏ Edit</button>
+          <button class="btn btn-sm btn-secondary" onclick="openBackends(${lb.id}, '${lb.name.replace(/'/g, "&#39;")}')" style="margin-left:4px">⚖️ Backends</button>
+        `;
+      }
+
+      return `<tr>
+        <td>${getTypeBadge(lb)}</td>
+        <td style="max-width:280px;">
+          <div style="font-weight:600;font-size:13px;color:var(--text-primary);">${lb.name}</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:2px;line-height:1.4;">${lb.notes || 'High-availability traffic distributor'}</div>
+        </td>
+        <td class="text-mono" style="font-size:12px;color:var(--accent);">${lb.virtualIp || '—'}</td>
+        <td><span class="badge badge-gray">${(lb.algorithm || '').replace(/_/g,' ')}</span></td>
+        <td>${statusBadge(lb.status)}</td>
+        <td style="font-size:11px;color:var(--text-muted);">
+          <code>${lb.healthCheckPath || '/health'}</code>
+          <div style="font-size:10px;margin-top:2px">every ${lb.healthCheckIntervalSeconds || 30}s</div>
+        </td>
+        <td>${backendSummary}</td>
+        <td>${actions}</td>
+      </tr>`;
+    });
+
+    document.getElementById('lb-body').innerHTML = rows.join('') || '<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--text-muted);">No load balancers match current filter.</td></tr>';
+  }
+
+  function openAdd() {
+    document.getElementById('modal-title').textContent = 'Add Load Balancer / Ingress';
+    document.getElementById('lb-id').value = '';
+    ['name','vip','healthpath','notes'].forEach(f => document.getElementById('f-'+f).value = '');
+    document.getElementById('f-algorithm').value = 'ROUND_ROBIN';
+    document.getElementById('f-status').value = 'ACTIVE';
+    document.getElementById('f-interval').value = 15;
+    document.getElementById('modal').classList.add('open');
+  }
+
+  function edit(id) {
+    const lb = loadBalancers.find(x => x.id === id); if (!lb) return;
+    document.getElementById('modal-title').textContent = 'Edit Load Balancer';
+    document.getElementById('lb-id').value = lb.id;
+    document.getElementById('f-name').value = lb.name;
+    document.getElementById('f-vip').value = lb.virtualIp || '';
+    document.getElementById('f-algorithm').value = lb.algorithm;
+    document.getElementById('f-status').value = lb.status;
+    document.getElementById('f-healthpath').value = lb.healthCheckPath || '';
+    document.getElementById('f-interval').value = lb.healthCheckIntervalSeconds || 15;
+    document.getElementById('f-notes').value = lb.notes || '';
+    document.getElementById('modal').classList.add('open');
+  }
+
+  async function save() {
+    const id = document.getElementById('lb-id').value;
+    const body = {
+      name: document.getElementById('f-name').value,
+      virtualIp: document.getElementById('f-vip').value,
+      algorithm: document.getElementById('f-algorithm').value,
+      status: document.getElementById('f-status').value,
+      healthCheckPath: document.getElementById('f-healthpath').value,
+      healthCheckIntervalSeconds: parseInt(document.getElementById('f-interval').value) || 15,
+      notes: document.getElementById('f-notes').value
+    };
+    try {
+      if (id) await apiPut('/loadbalancers/' + id, body);
+      else await apiPost('/loadbalancers', body);
+      toast(id ? 'Updated!' : 'Load balancer created!', 'success');
+      closeModal(); load();
+    } catch (e) { toast('Error: ' + e.message, 'error'); }
+  }
+
+  async function del(id) {
+    if (!confirm('Delete this load balancer? Backend servers will remain intact.')) return;
+    try { await apiDelete('/loadbalancers/' + id); toast('Load balancer deleted', 'success'); load(); }
+    catch (e) { toast('Error: ' + e.message, 'error'); }
+  }
+
+  function closeModal() { document.getElementById('modal').classList.remove('open'); }
+
+  // ── Backend pool ────────────────────────────────────────────────────
+  let currentLbId = null;
+  async function openBackends(lbId, lbName) {
+    currentLbId = lbId;
+    document.getElementById('backends-modal-title').textContent = `Backend Pool — ${lbName}`;
+    const addSection = document.getElementById('add-backend-section');
+    if (addSection) addSection.style.display = isViewer() ? 'none' : '';
+    document.getElementById('backends-modal').classList.add('open');
+    await loadBackends();
+  }
+
+  function closeBackendsModal() {
+    document.getElementById('backends-modal').classList.remove('open');
+    load();
+  }
+
+  async function loadBackends() {
+    try {
+      const backends = await apiGet(`/loadbalancers/${currentLbId}/backends`);
+      backendCache[currentLbId] = backends;
+      const isViewerRole = isViewer();
+      document.getElementById('backends-body').innerHTML = backends.length ? backends.map(b => `
+        <tr>
+          <td><strong>${b.targetName}</strong></td>
+          <td class="text-mono" style="font-size:12px;color:var(--accent);">${b.targetIp || '—'}</td>
+          <td><span class="badge badge-gray">${b.port}</span></td>
+          <td>Weight: ${b.weight}</td>
+          <td>
+            ${isViewerRole
+              ? (b.healthy ? '<span class="badge badge-green">Healthy</span>' : '<span class="badge badge-red">Unhealthy</span>')
+              : `<select class="form-control" style="font-size:12px;padding:4px 8px" onchange="toggleHealth(${b.id}, this.value)">
+                   <option value="true" ${b.healthy ? 'selected' : ''}>🟢 Healthy</option>
+                   <option value="false" ${!b.healthy ? 'selected' : ''}>🔴 Unhealthy</option>
+                 </select>`}
+          </td>
+          <td>${isViewerRole ? '' : `<button class="btn btn-sm btn-danger" onclick="removeBackend(${b.id})">🗑</button>`}</td>
+        </tr>`).join('') : '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:20px;">No backend targets registered yet. Add one below.</td></tr>';
+    } catch (e) { toast('Failed to load backends: ' + e.message, 'error'); }
+  }
+
+  async function addBackend() {
+    const targetName = document.getElementById('b-name').value.trim();
+    if (!targetName) { toast('Target name is required', 'error'); return; }
+    const body = {
+      targetName,
+      targetIp: document.getElementById('b-ip').value,
+      port: parseInt(document.getElementById('b-port').value) || 80,
+      weight: parseInt(document.getElementById('b-weight').value) || 1
+    };
+    try {
+      await apiPost(`/loadbalancers/${currentLbId}/backends`, body);
+      toast('Backend target added!', 'success');
+      document.getElementById('b-name').value = '';
+      document.getElementById('b-ip').value = '';
+      await loadBackends();
+    } catch (e) { toast('Error: ' + e.message, 'error'); }
+  }
+
+  async function toggleHealth(backendId, value) {
+    try {
+      await apiPut(`/loadbalancer-backends/${backendId}/health`, { healthy: value === 'true' });
+      toast('Backend health state updated', 'success');
+      await loadBackends();
+    } catch (e) { toast('Error: ' + e.message, 'error'); }
+  }
+
+  async function removeBackend(backendId) {
+    if (!confirm('Remove this backend target?')) return;
+    try { await apiDelete('/loadbalancer-backends/' + backendId); toast('Removed', 'success'); await loadBackends(); }
+    catch (e) { toast('Error: ' + e.message, 'error'); }
+  }
+
+  if (getUser().role === 'VIEWER') {
+    document.getElementById('add-lb-btn').style.display = 'none';
+  }
+  load();
+</script>
+</body>
+</html>

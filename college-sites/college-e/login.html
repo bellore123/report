@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Login | College E – Central Region</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Segoe UI',sans-serif; background:#0f172a; color:#e2e8f0; min-height:100vh; display:flex; flex-direction:column; }
+    .risk-strip { background:#7f1d1d;padding:7px 40px;text-align:center;font-size:11px;font-weight:700;color:#fecaca; }
+
+    header { background:#1f0a0a; border-bottom:3px solid #dc2626; padding:0 40px; }
+    .header-inner { max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:64px; }
+    .logo { display:flex;align-items:center;gap:10px;text-decoration:none;color:#fff; }
+    .logo-icon { width:38px;height:38px;background:#dc2626;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px; }
+    .logo h1 { font-size:15px;font-weight:700; }
+    nav a { color:#fca5a5;text-decoration:none;margin-left:20px;font-size:13px; }
+
+    .page { flex:1;display:flex;align-items:center;justify-content:center;padding:40px 20px; }
+    .login-wrap { display:grid;grid-template-columns:1fr 1fr;gap:40px;max-width:900px;width:100%;align-items:center; }
+
+    .info-panel h2 { font-size:26px;font-weight:800;color:#fff;margin-bottom:12px; }
+    .info-panel h2 span { color:#ef4444; }
+    .info-panel p { color:#94a3b8;font-size:13px;line-height:1.7;margin-bottom:20px; }
+
+    .risk-warning { background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:14px;margin-bottom:16px; }
+    .risk-warning-title { color:#dc2626;font-weight:700;font-size:12px;margin-bottom:8px;display:flex;align-items:center;gap:6px; }
+    .risk-warning p { font-size:11px;color:#fca5a5;margin:0; }
+
+    .server-info { background:#1e293b;border:1px solid #334155;border-radius:8px;padding:14px;font-size:12px; }
+    .server-info-title { color:#ef4444;font-weight:700;margin-bottom:8px;font-size:11px; }
+    .server-row { display:flex;justify-content:space-between;color:#94a3b8;margin-bottom:4px; }
+    .server-row span:last-child { color:#e2e8f0;font-family:monospace; }
+
+    .login-card { background:#1e293b;border:2px solid #334155;border-radius:14px;padding:34px;max-width:400px;width:100%; }
+    .login-card h3 { font-size:18px;font-weight:700;margin-bottom:6px; }
+    .login-card .sub { font-size:12px;color:#64748b;margin-bottom:24px; }
+    .form-group { margin-bottom:16px; }
+    label { font-size:12px;font-weight:600;color:#94a3b8;display:block;margin-bottom:6px; }
+    input { width:100%;background:#0f172a;border:1px solid #334155;border-radius:8px;padding:11px 14px;color:#e2e8f0;font-size:13px;outline:none;transition:border-color 0.2s; }
+    input:focus { border-color:#dc2626; }
+    .btn-login { width:100%;background:linear-gradient(135deg,#dc2626,#991b1b);color:#fff;border:none;border-radius:8px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;margin-top:6px; }
+    .btn-login:disabled { opacity:0.5;cursor:not-allowed; }
+    .links { display:flex;justify-content:space-between;font-size:12px;margin-top:14px; }
+    .links a { color:#f87171;text-decoration:none; }
+
+    #result-box { margin-top:14px;padding:12px;border-radius:8px;font-size:13px;display:none; }
+    #result-box.success { background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.4);color:#10b981; }
+    #result-box.danger  { background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.4);color:#ef4444; }
+    #result-box.warning { background:rgba(249,115,22,0.1);border:1px solid rgba(249,115,22,0.4);color:#fb923c; }
+
+    #attempt-counter { font-size:11px;color:#64748b;margin-top:10px;text-align:center; }
+
+    footer { background:#0a0a0a;border-top:1px solid #1e293b;padding:14px 40px;text-align:center;font-size:11px;color:#475569; }
+  </style>
+</head>
+<body>
+
+<div class="risk-strip">🔴 SECURITY STATUS: HIGH RISK — Login attempts to this portal are monitored in real time by CyberShield NEDI SOC</div>
+
+<header>
+  <div class="header-inner">
+    <a href="index.html" class="logo">
+      <div class="logo-icon">🎓</div>
+      <div>
+        <h1>College E – Central Region</h1>
+        <span style="font-size:10px;color:#fca5a5;">Bhopal, Madhya Pradesh</span>
+      </div>
+    </a>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="exam.html">Exam Portal</a>
+      <a href="faculty.html">Faculty</a>
+      <a href="erp.html">Admin/ERP</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page">
+  <div class="login-wrap">
+
+    <!-- Info Panel -->
+    <div class="info-panel">
+      <h2>Student Portal <span>Login</span></h2>
+      <p>Access your academic records, attendance, internal marks, and fee details. Use your Enrollment Number to log in.</p>
+
+      <div class="risk-warning">
+        <div class="risk-warning-title">🚨 SOC Security Notice</div>
+        <p>This institution (COL-E-CENTRAL) is currently flagged HIGH RISK. Multiple login attempts from unknown IPs have been detected. Your activity is being monitored and risk-scored in real time.</p>
+      </div>
+
+      <div class="server-info">
+        <div class="server-info-title">🖥️ Server Info (SOC Visible)</div>
+        <div class="server-row"><span>Server</span><span>NEDI-STUDENT-WEB-01</span></div>
+        <div class="server-row"><span>IP Address</span><span>10.0.1.10</span></div>
+        <div class="server-row"><span>Firewall</span><span>NEDI-DMZ-FW-01</span></div>
+        <div class="server-row"><span>Status</span><span style="color:#10b981;">✅ RUNNING</span></div>
+        <div class="server-row"><span>Institution</span><span style="color:#ef4444;">COL-E-CENTRAL ⚠️</span></div>
+        <div style="margin-top:10px;font-size:10px;color:#475569;">
+          🛡️ Monitored by CyberShield NEDI SOC.<br>
+          Repeated login failures → automatic BRUTE FORCE alert.
+        </div>
+      </div>
+    </div>
+
+    <!-- Login Form -->
+    <div class="login-card">
+      <h3>🔑 Student Login</h3>
+      <p class="sub">Enter your Enrollment Number and password</p>
+
+      <form id="login-form" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label>Enrollment Number</label>
+          <input type="text" id="username" placeholder="e.g. 0801CS22001" autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="password" placeholder="••••••••">
+        </div>
+        <button type="submit" class="btn-login" id="login-btn">Login →</button>
+        <div id="result-box"></div>
+        <div id="attempt-counter">Attempts: <span id="attempt-num">0</span> — 4+ triggers BRUTE FORCE alert</div>
+      </form>
+
+      <div class="links">
+        <a href="#">Forgot Password?</a>
+        <a href="#">New Student Registration</a>
+      </div>
+      <div style="margin-top:16px;font-size:10px;color:#475569;text-align:center;border-top:1px solid #1e293b;padding-top:12px;">
+        Problems? IT Helpdesk: 0755-2661234 · helpdesk@collegee.edu.in
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  College E – Central Region, Bhopal · Server: NEDI-STUDENT-WEB-01 (10.0.1.10) · Status: HIGH RISK · Protected by CyberShield NEDI SOC
+</footer>
+
+<script src="college-beacon.js"></script>
+<script>
+  let attemptCount = 0;
+
+  // Page load beacon
+  autoBeacon('COL-E-CENTRAL', 'College E - Central Region', 'login', 'PAGE_ACCESS');
+
+  async function handleLogin(e) {
+    e.preventDefault();
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    const btn      = document.getElementById('login-btn');
+    const box      = document.getElementById('result-box');
+
+    if (!username || !password) {
+      box.style.display = 'block';
+      box.className = 'danger';
+      box.textContent = '⚠️ Please enter your Enrollment Number and Password.';
+      return;
+    }
+
+    attemptCount++;
+    document.getElementById('attempt-num').textContent = attemptCount;
+
+    btn.disabled = true;
+    btn.textContent = 'Verifying...';
+    box.style.display = 'none';
+
+    // Send beacon — College E already has +10 risk amplifier from CollegeEventService
+    const result = await formBeacon('COL-E-CENTRAL', 'College E - Central Region', 'login', username, password);
+    if (result) showDetectionToast(result);
+
+    await new Promise(r => setTimeout(r, 700));
+
+    box.style.display = 'block';
+
+    if (result && result.riskScore >= 60) {
+      box.className = 'danger';
+      box.innerHTML = `
+        🚫 <b>Security Block:</b> ${result.eventType} detected.<br>
+        <span style="font-size:11px;">Risk Score: <b>${result.riskScore}/100</b> · Severity: <b>${result.severity}</b><br>
+        ${result.incidentCreated ? `Incident <a href="http://localhost:8081/incidents.html" target="_blank" style="color:#ef4444;">#${result.incidentId}</a> auto-created on CyberShield SOC.` : 'Event logged on CyberShield SOC.'}</span>
+      `;
+    } else {
+      box.className = 'warning';
+      box.innerHTML = `❌ Invalid credentials. Attempt #${attemptCount} logged.${attemptCount >= 3 ? '<br>⚠️ Warning: BRUTE FORCE detection threshold approaching.' : ''}`;
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Login →';
+  }
+</script>
+</body>
+</html>

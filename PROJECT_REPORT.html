@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CyberShield Nexus for NEDI - Project Report</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+  :root {
+    --bg: #0a0e1a; --card: #111827; --card2: #1a2236;
+    --border: #1e2d45; --accent: #00d4ff; --accent2: #7c3aed;
+    --green: #10b981; --red: #ef4444; --yellow: #f59e0b;
+    --text: #e2e8f0; --muted: #94a3b8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text);
+    font-size: 14px; line-height: 1.7; }
+  .page { max-width: 900px; margin: 0 auto; padding: 40px 24px; }
+
+  /* Cover */
+  .cover { text-align: center; padding: 60px 0 40px; border-bottom: 2px solid var(--border); margin-bottom: 48px; }
+  .cover-badge { display: inline-block; background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff; font-size: 11px; font-weight: 700; padding: 6px 16px; border-radius: 20px;
+    letter-spacing: 1px; text-transform: uppercase; margin-bottom: 20px; }
+  .cover h1 { font-size: 36px; font-weight: 800; margin-bottom: 8px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .cover .subtitle { font-size: 16px; color: var(--muted); margin-bottom: 28px; }
+  .cover-meta { display: flex; justify-content: center; gap: 32px; flex-wrap: wrap; }
+  .cover-meta-item { text-align: center; }
+  .cover-meta-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+  .cover-meta-value { font-size: 14px; font-weight: 600; margin-top: 2px; color: var(--text); }
+
+  /* Sections */
+  h2 { font-size: 22px; font-weight: 700; margin: 40px 0 16px;
+    padding-bottom: 10px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px; }
+  h3 { font-size: 16px; font-weight: 600; margin: 24px 0 10px; color: var(--accent); }
+  h4 { font-size: 13px; font-weight: 600; margin: 16px 0 6px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  p { color: var(--muted); margin-bottom: 12px; }
+  ul { color: var(--muted); padding-left: 20px; margin-bottom: 12px; }
+  li { margin-bottom: 4px; }
+  strong { color: var(--text); }
+
+  /* Cards */
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 20px; margin-bottom: 16px; }
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .stat { background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 16px; text-align: center; position: relative; overflow: hidden; }
+  .stat::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+  .stat.blue::before { background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+  .stat.green::before { background: var(--green); }
+  .stat.red::before { background: var(--red); }
+  .stat.yellow::before { background: var(--yellow); }
+  .stat-num { font-size: 32px; font-weight: 800; }
+  .stat-lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 4px; }
+
+  /* Table */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 20px; }
+  th { padding: 10px 14px; text-align: left; font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted);
+    background: var(--card2); border-bottom: 1px solid var(--border); }
+  td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--muted); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* Code */
+  code { font-family: 'JetBrains Mono', monospace; background: var(--card2); color: var(--accent);
+    padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+  pre { font-family: 'JetBrains Mono', monospace; background: var(--card2); color: var(--accent);
+    padding: 16px; border-radius: 8px; border: 1px solid var(--border);
+    overflow-x: auto; font-size: 12px; line-height: 1.6; margin-bottom: 16px; }
+
+  /* Badges */
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .badge-green { background: rgba(16,185,129,0.15); color: var(--green); }
+  .badge-red { background: rgba(239,68,68,0.15); color: var(--red); }
+  .badge-blue { background: rgba(0,212,255,0.15); color: var(--accent); }
+  .badge-yellow { background: rgba(245,158,11,0.15); color: var(--yellow); }
+
+  /* Attack path */
+  .attack-path { display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; margin: 12px 0; }
+  .node { background: var(--card2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 5px 12px; color: var(--muted); }
+  .node.start { border-color: var(--red); color: var(--red); background: rgba(239,68,68,0.1); }
+  .node.end { border-color: var(--yellow); color: var(--yellow); background: rgba(245,158,11,0.1); }
+  .arrow { color: var(--accent); font-size: 16px; }
+
+  /* Timeline */
+  .timeline { border-left: 2px solid var(--border); padding-left: 20px; margin: 16px 0; }
+  .timeline-item { position: relative; margin-bottom: 16px; }
+  .timeline-item::before { content: ''; position: absolute; left: -25px; top: 6px;
+    width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+  .timeline-title { font-weight: 600; font-size: 13px; }
+  .timeline-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* Print */
+  @media print {
+    body { background: #fff; color: #000; }
+    .card, .stat { background: #f9f9f9; border-color: #ddd; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Cover Page -->
+  <div class="cover">
+    <div class="cover-badge">CyberShield Nexus - NEDI Security Demo</div>
+    <h1>CyberShield Nexus for NEDI</h1>
+    <div class="subtitle">AI-Assisted Cyber Command Center for a Fictional Education Digital Infrastructure</div>
+    <div class="cover-meta">
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">Team / Author</div>
+        <div class="cover-meta-value">Santhosh</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">Project Type</div>
+        <div class="cover-meta-value">Academic Demo Project</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">Stack</div>
+        <div class="cover-meta-value">Java 21 + Spring Boot 3.2</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">Database</div>
+        <div class="cover-meta-value">PostgreSQL 16</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">Port</div>
+        <div class="cover-meta-value">localhost:8081</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1. Problem Statement -->
+  <h2>📌 1. Problem Statement</h2>
+  <div class="card">
+    <p>Modern enterprise data centers manage hundreds of servers, firewalls, software licenses, and hardware assets across multiple locations. The core challenges are:</p>
+    <ul>
+      <li><strong>No unified visibility</strong> — asset status scattered across spreadsheets and siloed tools</li>
+      <li><strong>Delayed threat detection</strong> — security breaches go undetected for days or weeks</li>
+      <li><strong>Manual risk assessment</strong> — patch status, license expiry, and access risks evaluated manually</li>
+      <li><strong>No audit trail</strong> — no automatic record of who accessed what, when</li>
+      <li><strong>Attack surface unknown</strong> — no way to visualize how an attacker can move laterally between assets</li>
+    </ul>
+  </div>
+
+  <!-- 2. Solution -->
+  <h2>💡 2. Our Solution</h2>
+  <p><strong>CyberShield Nexus</strong> is a full-stack security operations prototype built around <strong>NEDI — National Education Digital Infrastructure</strong>, a fictional scenario that simulates a centralized SOC environment for education-sector digital services. NEDI is entirely fictional and exists only to make the demonstration realistic, focused, and easy to evaluate. The project does not represent any real organization or government initiative.</p>
+
+  <div class="card-grid">
+    <div class="stat blue">
+      <div class="stat-num">🏗️</div>
+      <div class="stat-lbl">Unified Asset Management</div>
+    </div>
+    <div class="stat green">
+      <div class="stat-num">🧮</div>
+      <div class="stat-lbl">Live Risk Scoring Engine</div>
+    </div>
+    <div class="stat red">
+      <div class="stat-num">🕸️</div>
+      <div class="stat-lbl">BFS Attack Path Analysis</div>
+    </div>
+    <div class="stat yellow">
+      <div class="stat-num">🚨</div>
+      <div class="stat-lbl">Auto Incident Pipeline</div>
+    </div>
+  </div>
+
+  <!-- 3. Architecture -->
+  <h2>🏛️ 3. System Architecture</h2>
+
+  <h3>Technology Stack</h3>
+  <table>
+    <tr><th>Layer</th><th>Technology</th><th>Version</th><th>Purpose</th></tr>
+    <tr><td>Language</td><td>Java</td><td>21 LTS</td><td>Core application</td></tr>
+    <tr><td>Framework</td><td>Spring Boot</td><td>3.2.5</td><td>REST API, DI, Security</td></tr>
+    <tr><td>Security</td><td>Spring Security + JWT</td><td>HMAC-SHA384</td><td>Auth + RBAC</td></tr>
+    <tr><td>ORM</td><td>Hibernate / JPA</td><td>6.4</td><td>Database abstraction</td></tr>
+    <tr><td>Database</td><td>PostgreSQL</td><td>16.14</td><td>Persistent storage</td></tr>
+    <tr><td>Build</td><td>Maven</td><td>3.9.14</td><td>Dependency management</td></tr>
+    <tr><td>Frontend</td><td>Vanilla HTML/CSS/JS</td><td>—</td><td>9 responsive pages</td></tr>
+    <tr><td>Password</td><td>BCrypt</td><td>Strength 12</td><td>Password hashing</td></tr>
+  </table>
+
+  <h3>Database Schema (8 Tables)</h3>
+  <table>
+    <tr><th>Table</th><th>Columns</th><th>Purpose</th></tr>
+    <tr><td><code>users</code></td><td>id, username, email, password_hash, role, failed_login_attempts, locked_until</td><td>Auth + RBAC</td></tr>
+    <tr><td><code>audit_logs</code></td><td>id, action, attempted_username, ip_address, timestamp, target_type</td><td>Full audit trail</td></tr>
+    <tr><td><code>servers</code></td><td>id, name, ip_address, os, status, last_patch_date, owner, location</td><td>Server inventory</td></tr>
+    <tr><td><code>firewalls</code></td><td>id, name, ip_address, vendor, model, firmware_version, status</td><td>Firewall inventory</td></tr>
+    <tr><td><code>licenses</code></td><td>id, software_name, vendor, expiry_date, total_seats, used_seats, status</td><td>Software licenses</td></tr>
+    <tr><td><code>hardware</code></td><td>id, name, hardware_type, manufacturer, model, asset_tag, warranty_expiry</td><td>Physical assets</td></tr>
+    <tr><td><code>asset_relationships</code></td><td>id, source_asset_id, source_type, target_asset_id, target_type, trust_level</td><td>Attack graph edges</td></tr>
+    <tr><td><code>incidents</code></td><td>id, title, severity, status, risk_score, attack_path, affected_username</td><td>Security incidents</td></tr>
+  </table>
+
+  <!-- 4. Features -->
+  <h2>⚙️ 4. Key Features</h2>
+
+  <h3>4.1 Authentication & RBAC</h3>
+  <ul>
+    <li>JWT (HMAC-SHA384) issued on login, validated on every request</li>
+    <li>BCrypt strength-12 password hashing</li>
+    <li>3 roles: <code>ADMIN</code> (full), <code>SERVER_ADMIN</code> (manage servers), <code>VIEWER</code> (read-only)</li>
+    <li>Account lockout after 5 consecutive failures (15-minute ban)</li>
+    <li>Every login attempt (success or fail) written to AuditLog</li>
+  </ul>
+
+  <h3>4.2 Risk Engine (RiskEngineService)</h3>
+  <p>Calculates a <strong>0–100 risk score</strong> for every server using 5 independent factors:</p>
+  <table>
+    <tr><th>Factor</th><th>Points Added</th><th>Trigger Condition</th></tr>
+    <tr><td>Unpatched Server</td><td>+30</td><td>last_patch_date older than 90 days</td></tr>
+    <tr><td>Expired License</td><td>+25</td><td>Any license with expiry_date in past</td></tr>
+    <tr><td>Failed Login Burst</td><td>+20</td><td>≥5 LOGIN_FAIL events in last 24h in AuditLog</td></tr>
+    <tr><td>Low Trust Reachable</td><td>+15</td><td>Any edge pointing to server with trust_level &lt; 5</td></tr>
+    <tr><td>Expired Warranty</td><td>+10</td><td>Hardware warranty_expiry in past</td></tr>
+  </table>
+  <table>
+    <tr><th>Score Range</th><th>Severity</th><th>Action</th></tr>
+    <tr><td>0–49</td><td><span class="badge badge-green">SAFE</span></td><td>Monitor</td></tr>
+    <tr><td>50–69</td><td><span class="badge badge-yellow">LOW</span></td><td>Auto-create LOW incident</td></tr>
+    <tr><td>70–84</td><td><span class="badge badge-yellow">MEDIUM</span></td><td>Auto-create MEDIUM incident</td></tr>
+    <tr><td>85–94</td><td><span class="badge badge-red">HIGH</span></td><td>Auto-create HIGH incident</td></tr>
+    <tr><td>95–100</td><td><span class="badge badge-red">CRITICAL</span></td><td>Auto-create CRITICAL incident</td></tr>
+  </table>
+
+  <h3>4.3 BFS Attack Path (AttackPathService)</h3>
+  <p>Uses <strong>Breadth-First Search</strong> on the asset graph to find the shortest path an attacker can travel from a compromised entry point to a high-value target.</p>
+
+  <h4>Demo Attack Path (15 seeded edges):</h4>
+  <div class="attack-path">
+    <span class="node start">USER:3 (viewer)</span>
+    <span class="arrow">→</span>
+    <span class="node">FIREWALL:1</span>
+    <span class="arrow">→</span>
+    <span class="node">SERVER:1 (Web)</span>
+    <span class="arrow">→</span>
+    <span class="node">SERVER:2 (App)</span>
+    <span class="arrow">→</span>
+    <span class="node end">SERVER:3 (DB)</span>
+  </div>
+  <p>Result: <strong>4 hops</strong>. If viewer account is compromised, attacker can reach the database server in 4 lateral moves.</p>
+
+  <h3>4.4 Incident Pipeline</h3>
+  <div class="timeline">
+    <div class="timeline-item"><div class="timeline-title">Trigger Event</div>
+      <div class="timeline-desc">User login fails → AuthService catches it</div></div>
+    <div class="timeline-item"><div class="timeline-title">Risk Check</div>
+      <div class="timeline-desc">IncidentService calls RiskEngineService to score all servers owned by that user</div></div>
+    <div class="timeline-item"><div class="timeline-title">Threshold Evaluation</div>
+      <div class="timeline-desc">Score ≥ 50 → create incident; Score &lt; 50 → monitor only</div></div>
+    <div class="timeline-item"><div class="timeline-title">Incident Created</div>
+      <div class="timeline-desc">Incident saved with severity, attack path, source IP, and risk score</div></div>
+    <div class="timeline-item"><div class="timeline-title">Dashboard Updated</div>
+      <div class="timeline-desc">Open incident count increases, alert banner appears in UI</div></div>
+  </div>
+
+  <!-- 5. OWASP Coverage -->
+  <h2>🔐 5. OWASP Top 10 Coverage</h2>
+  <table>
+    <tr><th>OWASP ID</th><th>Title</th><th>Attack Demo</th><th>Protection</th></tr>
+    <tr>
+      <td><span class="badge badge-red">A01</span></td>
+      <td>Broken Access Control</td>
+      <td><code>idor_test.py</code></td>
+      <td>@PreAuthorize RBAC on every endpoint; VIEWER gets 403 on all write ops</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-red">A02</span></td>
+      <td>Cryptographic Failures</td>
+      <td><code>tamper_jwt.py</code></td>
+      <td>HMAC-SHA384 JWT signature; forged token → 401 Unauthorized</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-yellow">A07</span></td>
+      <td>Authentication Failures</td>
+      <td><code>brute_force.py</code></td>
+      <td>Account locked after 5 fails, auto-incident created, full audit log</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-blue">A09</span></td>
+      <td>Security Logging Failures</td>
+      <td>Audit Log page</td>
+      <td>100% event coverage — every API call logged with IP, user, timestamp</td>
+    </tr>
+  </table>
+
+  <!-- 6. API Reference -->
+  <h2>🌐 6. API Reference (30+ Endpoints)</h2>
+
+  <h3>Auth</h3>
+  <table>
+    <tr><th>Method</th><th>Endpoint</th><th>Role</th><th>Description</th></tr>
+    <tr><td><code>POST</code></td><td>/api/auth/login</td><td>Public</td><td>Returns JWT token</td></tr>
+    <tr><td><code>GET</code></td><td>/api/auth/me</td><td>Any</td><td>Logged-in user info</td></tr>
+  </table>
+
+  <h3>Assets (Servers / Firewalls / Licenses / Hardware)</h3>
+  <table>
+    <tr><th>Method</th><th>Pattern</th><th>Role</th><th>Description</th></tr>
+    <tr><td><code>GET</code></td><td>/api/{resource}</td><td>VIEWER+</td><td>List all</td></tr>
+    <tr><td><code>GET</code></td><td>/api/{resource}/{id}</td><td>VIEWER+</td><td>Get one</td></tr>
+    <tr><td><code>POST</code></td><td>/api/{resource}</td><td>SERVER_ADMIN+</td><td>Create</td></tr>
+    <tr><td><code>PUT</code></td><td>/api/{resource}/{id}</td><td>SERVER_ADMIN+</td><td>Update</td></tr>
+    <tr><td><code>DELETE</code></td><td>/api/{resource}/{id}</td><td>ADMIN only</td><td>Delete</td></tr>
+  </table>
+
+  <h3>NEDI Security Intelligence</h3>
+  <table>
+    <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+    <tr><td><code>GET</code></td><td>/api/risk/server/{id}</td><td>Risk score for one server</td></tr>
+    <tr><td><code>GET</code></td><td>/api/risk/servers</td><td>Risk scores for all servers</td></tr>
+    <tr><td><code>POST</code></td><td>/api/risk/evaluate/server/{id}</td><td>Score + auto-create incident</td></tr>
+    <tr><td><code>GET</code></td><td>/api/graph/attack-path</td><td>BFS shortest path between assets</td></tr>
+    <tr><td><code>GET</code></td><td>/api/graph/reachable</td><td>All assets reachable from entry point</td></tr>
+    <tr><td><code>GET</code></td><td>/api/incidents</td><td>List all incidents</td></tr>
+    <tr><td><code>PUT</code></td><td>/api/incidents/{id}/resolve</td><td>Resolve incident</td></tr>
+    <tr><td><code>GET</code></td><td>/api/dashboard</td><td>Full dashboard data</td></tr>
+    <tr><td><code>GET</code></td><td>/api/audit-logs</td><td>Recent audit entries</td></tr>
+  </table>
+
+  <!-- 7. Test Results -->
+  <h2>✅ 7. Live Test Results</h2>
+  <div class="card">
+    <table>
+      <tr><th>Test</th><th>Input</th><th>Expected</th><th>Actual</th><th>Pass?</th></tr>
+      <tr><td>Admin login</td><td>admin/Admin@123</td><td>200 + JWT</td><td>200 + JWT</td><td><span class="badge badge-green">✅</span></td></tr>
+      <tr><td>Wrong password</td><td>admin/wrongpass</td><td>401</td><td>401</td><td><span class="badge badge-green">✅</span></td></tr>
+      <tr><td>VIEWER delete server</td><td>viewer token</td><td>403</td><td>403</td><td><span class="badge badge-green">✅</span></td></tr>
+      <tr><td>JWT tamper</td><td>forged role=ADMIN</td><td>401</td><td>401</td><td><span class="badge badge-green">✅</span></td></tr>
+      <tr><td>Risk Score — Server 3</td><td>unpatched + expired</td><td>55/100 LOW</td><td>55/100 LOW</td><td><span class="badge badge-green">✅</span></td></tr>
+      <tr><td>BFS Attack Path</td><td>USER:3 → SERVER:3</td><td>4 hops found</td><td>4 hops found</td><td><span class="badge badge-green">✅</span></td></tr>
+      <tr><td>Auto-incident creation</td><td>score ≥ 50</td><td>Incident created</td><td>Incident created</td><td><span class="badge badge-green">✅</span></td></tr>
+      <tr><td>Dashboard API</td><td>GET /api/dashboard</td><td>All counts</td><td>All counts ✓</td><td><span class="badge badge-green">✅</span></td></tr>
+      <tr><td>Graph edges seeded</td><td>15 edges</td><td>15 rows in DB</td><td>15 rows ✓</td><td><span class="badge badge-green">✅</span></td></tr>
+      <tr><td>Account lockout</td><td>6 wrong attempts</td><td>403 Locked</td><td>403 Locked</td><td><span class="badge badge-green">✅</span></td></tr>
+    </table>
+  </div>
+
+  <!-- 8. Attack Demos -->
+  <h2>⚔️ 8. Attack Demonstration Scripts</h2>
+
+  <h3>Attack 1 — Brute Force (OWASP A07)</h3>
+  <pre>cd attack-scripts
+python brute_force.py
+
+Output:
+  [01] Trying 'password'          → ❌ FAIL (HTTP 401)
+  [02] Trying '123456'            → ❌ FAIL (HTTP 401)
+  ...
+  [06] Trying 'master'            → 🔒 LOCKED (HTTP 403)
+  🔒 ACCOUNT LOCKED: Account locked for 15 minutes
+  ✅ CyberShield protection activated!</pre>
+
+  <h3>Attack 2 — IDOR (OWASP A01)</h3>
+  <pre>python idor_test.py
+
+Output:
+  ✅  GET    /servers              → ALLOWED  (viewers can read)
+  🔒  POST   /servers             → BLOCKED (403)
+  🔒  PUT    /servers/1           → BLOCKED (403)
+  🔒  DELETE /servers/1          → BLOCKED (403)
+  🔒  DELETE /licenses/1         → BLOCKED (403)</pre>
+
+  <h3>Attack 3 — JWT Tamper (OWASP A02)</h3>
+  <pre>python tamper_jwt.py
+
+Output:
+  Original role: VIEWER
+  Forged role:   ADMIN  (signature unchanged)
+
+  🔒  DELETE /api/servers/5 → HTTP 401 (Forged JWT rejected)
+  ✅  Real ADMIN token      → HTTP 200 (Valid JWT accepted)</pre>
+
+  <!-- 9. Seeded Data -->
+  <h2>📦 9. Seeded Demo Data</h2>
+  <div class="card-grid">
+    <div class="stat blue"><div class="stat-num">5</div><div class="stat-lbl">Servers seeded</div></div>
+    <div class="stat green"><div class="stat-num">3</div><div class="stat-lbl">Firewalls seeded</div></div>
+    <div class="stat yellow"><div class="stat-num">5</div><div class="stat-lbl">Licenses seeded</div></div>
+    <div class="stat red"><div class="stat-num">3</div><div class="stat-lbl">Hardware items</div></div>
+  </div>
+  <table>
+    <tr><th>Asset</th><th>Details</th><th>Risk Factor</th></tr>
+    <tr><td>Server-WEB-01</td><td>Ubuntu 22.04, patched</td><td>Expired license +25</td></tr>
+    <tr><td>Server-APP-02</td><td>RHEL 8, NOT patched (120 days)</td><td>Unpatched +30, License +25</td></tr>
+    <tr><td>Server-DB-03</td><td>CentOS 7, NOT patched</td><td>Unpatched +30, License +25</td></tr>
+    <tr><td>FW-Perimeter-01</td><td>Cisco ASA, trust_level=3</td><td>Low-trust graph edge</td></tr>
+    <tr><td>MS-Office-365</td><td>Expired 2024-12-31</td><td>Risk +25 to linked servers</td></tr>
+  </table>
+
+  <!-- 10. How to Run -->
+  <h2>🚀 10. How to Run</h2>
+  <div class="card">
+    <h4>Prerequisites</h4>
+    <ul>
+      <li>Java 21 LTS installed</li>
+      <li>Maven 3.9+ installed</li>
+      <li>PostgreSQL 16 running on port 5432</li>
+      <li>Database <code>cybershield_db</code> created</li>
+      <li>Python 3 + requests library for attack scripts</li>
+    </ul>
+    <h4>Start the Application</h4>
+    <pre>cd cybershield-nexus
+mvn spring-boot:run</pre>
+    <h4>Open in Browser</h4>
+    <pre>http://localhost:8081/login.html
+Username: admin   Password: Admin@123</pre>
+    <h4>Run Attack Scripts</h4>
+    <pre>cd attack-scripts
+python run_all_attacks.py   # runs all 3 attacks in sequence</pre>
+  </div>
+
+  <!-- 11. Complete 10-Phase Roadmap Matrix -->
+  <h2>🏆 11. 10-Phase Transformation & Roadmap Completion</h2>
+  <div class="card">
+    <p>The system has undergone a full end-to-end transformation into an academic-grade AI Cyber Command Center adhering to industry standards (NIST SP 800-61 Rev. 3, NIST CSF 2.0, MITRE ATT&CK):</p>
+    <table>
+      <tr><th>Phase</th><th>Module / Focus</th><th>Status</th><th>Academic Deliverables</th></tr>
+      <tr><td><strong>Phase 1</strong></td><td>Identity & Ethics</td><td><span class="badge badge-green">COMPLETED</span></td><td>Scenario framing for NEDI, ethical disclaimers, removal of sensitive references</td></tr>
+      <tr><td><strong>Phase 2</strong></td><td>Backend Domain Models</td><td><span class="badge badge-green">COMPLETED</span></td><td><code>Institution</code>, <code>DigitalService</code>, enhanced <code>Server</code> and relational repositories</td></tr>
+      <tr><td><strong>Phase 3</strong></td><td>Realistic NEDI Seed Data</td><td><span class="badge badge-green">COMPLETED</span></td><td>8 education services, 5 multi-tier servers, enterprise firewalls, 15 attack path edges</td></tr>
+      <tr><td><strong>Phase 4</strong></td><td>SOC Command Dashboard</td><td><span class="badge badge-green">COMPLETED</span></td><td>8-service telemetry grid, Exam Portal spotlight (92% risk), real-time operations overview</td></tr>
+      <tr><td><strong>Phase 5</strong></td><td>AI Risk Engine & Explainability</td><td><span class="badge badge-green">COMPLETED</span></td><td>0–100 risk scoring, MITRE ATT&CK mappings (T1110, T1190, T1021), prioritized mitigation</td></tr>
+      <tr><td><strong>Phase 6</strong></td><td>Digital Twin & Attack Graph</td><td><span class="badge badge-green">COMPLETED</span></td><td>Interactive SVG network topology, Breadth-First Search lateral movement visualizer</td></tr>
+      <tr><td><strong>Phase 7</strong></td><td>NIST Incident Workflow</td><td><span class="badge badge-green">COMPLETED</span></td><td>Full lifecycle: <code>OPEN</code> → <code>INVESTIGATING</code> → <code>CONTAINED</code> → <code>RESOLVED</code> with forensic notes</td></tr>
+      <tr><td><strong>Phase 8</strong></td><td>Live Dynamic Report Generator</td><td><span class="badge badge-green">COMPLETED</span></td><td>Dynamic JSON and executive printable HTML reports via <code>/api/reports/incident/{id}</code></td></tr>
+      <tr><td><strong>Phase 9</strong></td><td>Automated Test Suite</td><td><span class="badge badge-green">COMPLETED</span></td><td>14 Unit and Integration tests passing 100% (Security, Risk Engine, BFS, Reports)</td></tr>
+      <tr><td><strong>Phase 10</strong></td><td>Presentation Polish & Demos</td><td><span class="badge badge-green">COMPLETED</span></td><td>Complete navigation integration, responsive SOC theme, and OWASP attack demo scripts</td></tr>
+    </table>
+    <div style="background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:14px;margin-top:14px;">
+      <strong style="color:var(--green)">Unit & Integration Test Verification:</strong>
+      <p style="margin:4px 0 0;font-size:12px;color:var(--muted)">14 of 14 automated tests passing successfully under Maven Surefire (<code>mvn test</code>) across <code>AuthAndSecurityTests</code>, <code>RiskEngineAndAttackPathTests</code>, <code>IncidentAndReportTests</code>, and <code>CyberShieldNexusApplicationTests</code>.</p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div style="margin-top:48px;padding-top:20px;border-top:1px solid var(--border);text-align:center;color:var(--muted);font-size:12px">
+    <p>CyberShield Nexus for NEDI — Fictional Academic Security Project</p>
+    <p style="margin-top:4px">Built with Java 21 · Spring Boot 3.2 · PostgreSQL 16 · JWT · BFS Algorithm</p>
+    <p style="margin-top:4px">OWASP Coverage: A01 (IDOR) · A02 (JWT Tamper) · A07 (Brute Force) · A09 (Audit Logging)</p>
+  </div>
+
+</div>
+</body>
+</html>

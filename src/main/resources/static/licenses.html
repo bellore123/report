@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Licenses — CyberShield Nexus</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-brand"><h1>CyberShield Nexus</h1><span>NEDI AI Cyber Command</span></div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <a href="/dashboard.html" class="nav-item"><span class="icon">📊</span> Dashboard</a>
+    <div class="nav-section-label">Assets</div>
+    <a href="/servers.html" class="nav-item"><span class="icon">🖥️</span> Servers</a>
+    <a href="/firewalls.html" class="nav-item"><span class="icon">🔥</span> Firewalls</a>
+    <a href="/loadbalancers.html" class="nav-item"><span class="icon">⚖️</span> Load Balancers</a>
+    <a href="/licenses.html" class="nav-item active"><span class="icon">📋</span> Licenses</a>
+    <a href="/hardware.html" class="nav-item"><span class="icon">⚙️</span> Hardware</a>
+    <div class="nav-section-label">Security</div>
+    <a href="/incidents.html" class="nav-item"><span class="icon">🚨</span> Incidents</a>
+    <a href="/risk.html" class="nav-item"><span class="icon">📈</span> Risk & Attack Path</a>
+    <a href="/audit-log.html" class="nav-item"><span class="icon">📜</span> Audit Log</a>
+    <a href="/users.html" id="nav-users" class="nav-item"><span class="icon">👤</span> Users & Roles</a>
+    <div class="nav-section-label">Tools</div>
+    <a href="/phishing-detector.html" class="nav-item"><span class="icon">🎣</span> Phishing Detector</a>
+  </nav>
+  <div class="sidebar-footer"><button onclick="logout()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:12px;">⏏ Sign Out</button></div>
+</aside>
+<header class="topbar">
+  <span class="topbar-title">License Management</span>
+  <div class="topbar-right">
+    <div class="topbar-user">
+      <div class="user-avatar" id="topbar-avatar">A</div>
+      <div><div style="font-weight:600;font-size:13px" id="topbar-username"></div>
+      <div style="font-size:10px;color:var(--text-muted)" id="topbar-role"></div></div>
+    </div>
+  </div>
+</header>
+<main class="main-content">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h2 style="font-size:20px;font-weight:700">Licenses</h2>
+      <p style="color:var(--text-muted);font-size:13px;margin-top:2px">Expired licenses raise risk score +25 on linked servers</p>
+    </div>
+    <button class="btn btn-primary" id="add-license-btn" onclick="openAdd()">＋ Add License</button>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title" id="lic-count">All Licenses</span>
+      <div class="flex gap-2">
+        <button class="btn btn-sm btn-secondary" onclick="filterStatus('all')">All</button>
+        <button class="btn btn-sm btn-danger" onclick="filterStatus('EXPIRED')">Expired</button>
+        <button class="btn btn-sm btn-secondary" style="color:var(--accent-yellow)" onclick="filterStatus('PENDING_RENEWAL')">Expiring Soon</button>
+      </div>
+    </div>
+    <div class="table-wrapper">
+      <div id="loading"><div class="spinner"></div></div>
+      <table id="lic-table" style="display:none">
+        <thead><tr>
+          <th>Software</th><th>Vendor</th><th>Type</th><th>Status</th>
+          <th>Seats Used/Total</th><th>Expiry Date</th><th>Assigned To</th><th>Actions</th>
+        </tr></thead>
+        <tbody id="lic-body"></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-title">Add License</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="lic-id">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group"><label class="form-label">Software Name *</label><input class="form-control" id="f-sw" required></div>
+        <div class="form-group"><label class="form-label">Vendor</label><input class="form-control" id="f-vendor"></div>
+        <div class="form-group"><label class="form-label">License Type</label>
+          <select class="form-control" id="f-type">
+            <option>PER_SEAT</option><option>SUBSCRIPTION</option><option>PERPETUAL</option><option>OPEN_SOURCE</option>
+          </select></div>
+        <div class="form-group"><label class="form-label">Status</label>
+          <select class="form-control" id="f-status">
+            <option>ACTIVE</option><option>EXPIRED</option><option>PENDING_RENEWAL</option><option>CANCELLED</option>
+          </select></div>
+        <div class="form-group"><label class="form-label">Total Seats *</label><input class="form-control" id="f-total" type="number" value="1"></div>
+        <div class="form-group"><label class="form-label">Used Seats</label><input class="form-control" id="f-used" type="number" value="0"></div>
+        <div class="form-group"><label class="form-label">Expiry Date *</label><input class="form-control" id="f-expiry" type="date" required></div>
+        <div class="form-group"><label class="form-label">Assigned To</label><input class="form-control" id="f-assign"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="save()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+<script src="/js/auth.js"></script>
+<script>
+  requireAuth(); renderTopbarUser();
+  let licenses = [], current = [];
+
+  async function load() {
+    try {
+      licenses = await apiGet('/licenses');
+      current = licenses;
+      render(licenses);
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('lic-table').style.display = '';
+    } catch(e) { toast('Failed: ' + e.message, 'error'); }
+  }
+
+  function filterStatus(status) {
+    current = status === 'all' ? licenses : licenses.filter(l => l.status === status);
+    render(current);
+  }
+
+  function render(data) {
+    const isA = isAdmin();
+    const addBtn = document.getElementById('add-license-btn');
+    if (addBtn) addBtn.style.display = isA ? '' : 'none';
+
+    document.getElementById('lic-count').textContent = `Licenses (${data.length})`;
+    const today = new Date();
+    document.getElementById('lic-body').innerHTML = data.map(l => {
+      const expiry = new Date(l.expiryDate);
+      const isExpired = expiry < today;
+      const daysLeft = Math.ceil((expiry - today) / 86400000);
+      const expiryDisplay = isExpired
+        ? `<span class="badge badge-red">EXPIRED ${formatDate(l.expiryDate)}</span>`
+        : daysLeft <= 30
+          ? `<span class="badge badge-yellow">⚠ ${daysLeft}d left</span>`
+          : `<span style="font-size:12px">${formatDate(l.expiryDate)}</span>`;
+      const seatsColor = l.usedSeats >= l.totalSeats ? 'var(--accent-red)' : 'var(--accent-green)';
+      return `<tr style="${isExpired ? 'background:rgba(239,68,68,0.04)' : ''}">
+        <td><strong>${l.softwareName}</strong></td>
+        <td style="font-size:12px;color:var(--text-muted)">${l.vendor || '—'}</td>
+        <td><span class="badge badge-blue">${(l.licenseType || '—').replace(/_/g,' ')}</span></td>
+        <td>${statusBadge(l.status)}</td>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:12px">
+          <span style="color:${seatsColor}">${l.usedSeats}</span> / ${l.totalSeats}
+        </td>
+        <td>${expiryDisplay}</td>
+        <td style="font-size:12px">${l.assignedTo || '—'}</td>
+        <td>
+          ${isA ? `
+          <button class="btn btn-sm btn-secondary" onclick="edit(${l.id})">✏ Edit</button>
+          <button class="btn btn-sm btn-danger" onclick="del(${l.id})" style="margin-left:4px">🗑</button>
+          ` : '<span class="text-muted" style="font-size:11px">Read only</span>'}
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  function openAdd() {
+    document.getElementById('modal-title').textContent = 'Add License';
+    document.getElementById('lic-id').value = '';
+    ['sw','vendor','assign'].forEach(f => document.getElementById('f-'+f).value = '');
+    document.getElementById('f-total').value = 1;
+    document.getElementById('f-used').value = 0;
+    document.getElementById('f-expiry').value = '';
+    document.getElementById('modal').classList.add('open');
+  }
+
+  function edit(id) {
+    const l = licenses.find(x => x.id === id); if (!l) return;
+    document.getElementById('modal-title').textContent = 'Edit License';
+    document.getElementById('lic-id').value = l.id;
+    document.getElementById('f-sw').value = l.softwareName;
+    document.getElementById('f-vendor').value = l.vendor || '';
+    document.getElementById('f-type').value = l.licenseType || 'PER_SEAT';
+    document.getElementById('f-status').value = l.status;
+    document.getElementById('f-total').value = l.totalSeats;
+    document.getElementById('f-used').value = l.usedSeats;
+    document.getElementById('f-expiry').value = l.expiryDate;
+    document.getElementById('f-assign').value = l.assignedTo || '';
+    document.getElementById('modal').classList.add('open');
+  }
+
+  async function save() {
+    const id = document.getElementById('lic-id').value;
+    const body = {
+      softwareName: document.getElementById('f-sw').value,
+      vendor: document.getElementById('f-vendor').value,
+      licenseType: document.getElementById('f-type').value,
+      status: document.getElementById('f-status').value,
+      totalSeats: parseInt(document.getElementById('f-total').value),
+      usedSeats: parseInt(document.getElementById('f-used').value),
+      expiryDate: document.getElementById('f-expiry').value,
+      assignedTo: document.getElementById('f-assign').value
+    };
+    try {
+      if (id) await apiPut('/licenses/' + id, body);
+      else await apiPost('/licenses', body);
+      toast(id ? 'Updated!' : 'Added!', 'success');
+      closeModal(); load();
+    } catch(e) { toast('Error: ' + e.message, 'error'); }
+  }
+
+  async function del(id) {
+    if (!confirm('Delete this license?')) return;
+    try { await apiDelete('/licenses/' + id); toast('Deleted', 'success'); load(); }
+    catch(e) { toast('Error: ' + e.message, 'error'); }
+  }
+
+  function closeModal() { document.getElementById('modal').classList.remove('open'); }
+  if (getUser().role !== 'ADMIN') {
+    document.getElementById('add-license-btn').style.display = 'none';
+  }
+  load();
+</script>
+</body>
+</html>

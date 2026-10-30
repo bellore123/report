@@ -1,0 +1,195 @@
+{
+  "info": {
+    "name": "CyberShield Nexus — NEDI Demo Scenario",
+    "_postman_id": "cybershield-nedi-demo",
+    "description": "Full API test collection for CyberShield Nexus security platform.\nIncludes Auth, CRUD, Risk Engine, Attack Path, and 3 Attack Demonstrations.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8081/api" },
+    { "key": "admin_token", "value": "" },
+    { "key": "viewer_token", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1. Authentication",
+      "item": [
+        {
+          "name": "Login as Admin",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "var res = pm.response.json();",
+            "pm.collectionVariables.set('admin_token', res.token);",
+            "pm.test('Login successful', () => pm.response.to.have.status(200));",
+            "pm.test('Token received', () => pm.expect(res.token).to.be.a('string'));"
+          ]}}],
+          "request": {
+            "method": "POST", "url": "{{base_url}}/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"username\":\"admin\",\"password\":\"Admin@123\"}" }
+          }
+        },
+        {
+          "name": "Login as Viewer",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "var res = pm.response.json();",
+            "pm.collectionVariables.set('viewer_token', res.token);",
+            "pm.test('Viewer login OK', () => pm.response.to.have.status(200));"
+          ]}}],
+          "request": {
+            "method": "POST", "url": "{{base_url}}/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"username\":\"viewer\",\"password\":\"Admin@123\"}" }
+          }
+        },
+        {
+          "name": "Login — Wrong Password (should 401)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('Wrong password = 401', () => pm.response.to.have.status(401));"
+          ]}}],
+          "request": {
+            "method": "POST", "url": "{{base_url}}/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"username\":\"admin\",\"password\":\"wrongpassword\"}" }
+          }
+        },
+        {
+          "name": "GET /auth/me",
+          "request": {
+            "method": "GET", "url": "{{base_url}}/auth/me",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Dashboard",
+      "item": [
+        {
+          "name": "GET Dashboard",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('Dashboard loads', () => pm.response.to.have.status(200));",
+            "var b = pm.response.json();",
+            "pm.test('Has counts', () => pm.expect(b.counts).to.be.an('object'));",
+            "pm.test('Has totalAlerts', () => pm.expect(b.totalAlerts).to.be.a('number'));"
+          ]}}],
+          "request": {
+            "method": "GET", "url": "{{base_url}}/dashboard",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Servers (CRUD)",
+      "item": [
+        { "name": "GET All Servers",
+          "request": { "method": "GET", "url": "{{base_url}}/servers",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }] } },
+        { "name": "GET Server by ID",
+          "request": { "method": "GET", "url": "{{base_url}}/servers/1",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }] } },
+        { "name": "POST Create Server",
+          "request": { "method": "POST", "url": "{{base_url}}/servers",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"name\":\"Test-Server\",\"ipAddress\":\"192.168.1.100\",\"operatingSystem\":\"Ubuntu\",\"osVersion\":\"22.04\",\"status\":\"RUNNING\",\"owner\":\"DevTeam\",\"location\":\"DC1-Rack-5\"}" }
+          }
+        },
+        { "name": "PUT Update Server",
+          "request": { "method": "PUT", "url": "{{base_url}}/servers/1",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"name\":\"Server-WEB-01\",\"ipAddress\":\"192.168.1.10\",\"operatingSystem\":\"Ubuntu\",\"osVersion\":\"22.04\",\"status\":\"RUNNING\",\"owner\":\"WebTeam\",\"location\":\"DC1-Rack-1\",\"lastPatchDate\":\"2025-07-01\"}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Risk Engine",
+      "item": [
+        { "name": "GET Risk Score — Server 1",
+          "request": { "method": "GET", "url": "{{base_url}}/risk/server/1",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }] } },
+        { "name": "GET Risk Score — Server 3 (High Risk)",
+          "request": { "method": "GET", "url": "{{base_url}}/risk/server/3",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }] } },
+        { "name": "GET All Server Risks",
+          "request": { "method": "GET", "url": "{{base_url}}/risk/servers",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }] } },
+        { "name": "POST Evaluate & Create Incident",
+          "request": { "method": "POST", "url": "{{base_url}}/risk/evaluate/server/3",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }] } }
+      ]
+    },
+    {
+      "name": "5. BFS Attack Path",
+      "item": [
+        { "name": "GET Attack Path — viewer to DB server",
+          "request": { "method": "GET",
+            "url": "{{base_url}}/graph/attack-path?startId=3&startType=USER&targetId=3&targetType=SERVER",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }] } },
+        { "name": "GET Reachable from viewer",
+          "request": { "method": "GET",
+            "url": "{{base_url}}/graph/reachable?startId=3&startType=USER",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }] } }
+      ]
+    },
+    {
+      "name": "6. Incidents",
+      "item": [
+        { "name": "GET All Incidents",
+          "request": { "method": "GET", "url": "{{base_url}}/incidents",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }] } },
+        { "name": "GET Open Incidents",
+          "request": { "method": "GET", "url": "{{base_url}}/incidents/open",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }] } },
+        { "name": "PUT Resolve Incident #1",
+          "request": { "method": "PUT", "url": "{{base_url}}/incidents/1/resolve",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }] } }
+      ]
+    },
+    {
+      "name": "7. ATTACK DEMOS",
+      "item": [
+        {
+          "name": "ATTACK 1 — Brute Force (attempt 1)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('Wrong password blocked', () => pm.response.to.have.status(401));"
+          ]}}],
+          "request": { "method": "POST", "url": "{{base_url}}/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"username\":\"serveradmin\",\"password\":\"password123\"}" } }
+        },
+        {
+          "name": "ATTACK 2 — IDOR: Viewer tries DELETE (should 403)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('IDOR blocked with 403', () => pm.response.to.have.status(403));"
+          ]}}],
+          "request": { "method": "DELETE", "url": "{{base_url}}/servers/1",
+            "header": [{ "key": "Authorization", "value": "Bearer {{viewer_token}}" }] }
+        },
+        {
+          "name": "ATTACK 3 — JWT Tamper: Forged token (should 401)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('Forged JWT rejected with 401', () => pm.response.to.have.status(401));"
+          ]}}],
+          "request": { "method": "GET", "url": "{{base_url}}/dashboard",
+            "header": [{ "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJ2aWV3ZXIiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3MDAwMDAwMDB9.INVALIDSIGNATURE" }] }
+        }
+      ]
+    },
+    {
+      "name": "8. Audit Log",
+      "item": [
+        { "name": "GET Recent Audit Logs",
+          "request": { "method": "GET", "url": "{{base_url}}/audit-logs",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }] } }
+      ]
+    }
+  ]
+}

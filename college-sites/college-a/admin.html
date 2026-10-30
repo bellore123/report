@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel | College A – South Campus</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Segoe UI',sans-serif; background:#0f172a; color:#e2e8f0; min-height:100vh; }
+    header { background:#1a0a0a; border-bottom:3px solid #dc2626; padding:0 40px; }
+    .header-inner { max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:64px; }
+    .logo { display:flex;align-items:center;gap:10px;text-decoration:none;color:#fff; }
+    .logo-icon { width:38px;height:38px;background:#dc2626;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px; }
+    .logo h1 { font-size:15px;font-weight:700; }
+    nav a { color:#fca5a5;text-decoration:none;margin-left:20px;font-size:13px; }
+
+    /* Alert Banner */
+    .alert-banner { background:rgba(239,68,68,0.1);border-bottom:1px solid rgba(239,68,68,0.3);padding:10px 40px; }
+    .alert-inner { max-width:1200px;margin:0 auto;font-size:12px;color:#fca5a5;display:flex;align-items:center;gap:8px; }
+
+    .page { display:flex;align-items:center;justify-content:center;padding:40px 20px;min-height:calc(100vh - 150px); }
+    .admin-wrap { display:grid;grid-template-columns:1fr 1fr;gap:40px;max-width:900px;width:100%;align-items:start; }
+
+    .warning-panel { padding:20px; }
+    .warning-panel h2 { font-size:24px;font-weight:800;color:#fff;margin-bottom:12px; }
+    .warning-panel h2 span { color:#dc2626; }
+
+    .risk-card { background:rgba(239,68,68,0.08);border:2px solid rgba(239,68,68,0.3);border-radius:10px;padding:16px;margin-bottom:16px; }
+    .risk-card .risk-title { font-size:12px;font-weight:700;color:#dc2626;margin-bottom:8px;display:flex;align-items:center;gap:6px; }
+    .risk-row { display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px; }
+    .risk-row span:first-child { color:#94a3b8; }
+    .risk-row span:last-child { color:#e2e8f0;font-family:monospace; }
+
+    .admin-services { display:grid;gap:8px; }
+    .admin-svc { background:#1e293b;border:1px solid #334155;border-radius:8px;padding:12px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all 0.2s; }
+    .admin-svc:hover { border-color:#dc2626;background:#1a0a0a; }
+    .admin-svc .svc-icon { font-size:18px; }
+    .admin-svc h4 { font-size:12px;font-weight:700; }
+    .admin-svc p { font-size:10px;color:#64748b; }
+
+    .login-card { background:#1e293b;border:2px solid #334155;border-radius:14px;padding:36px; }
+    .login-card h3 { font-size:18px;font-weight:700;margin-bottom:4px;color:#fff; }
+    .login-card .sub { font-size:12px;color:#64748b;margin-bottom:24px; }
+    .form-group { margin-bottom:16px; }
+    label { font-size:12px;font-weight:600;color:#94a3b8;display:block;margin-bottom:6px; }
+    input { width:100%;background:#0a1628;border:1px solid #334155;border-radius:8px;padding:11px 14px;color:#e2e8f0;font-size:13px;outline:none;transition:border-color 0.2s; }
+    input:focus { border-color:#dc2626; }
+    .btn-admin { width:100%;background:linear-gradient(135deg,#dc2626,#991b1b);color:#fff;border:none;border-radius:8px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;margin-top:6px; }
+    #result-box { margin-top:14px;padding:12px;border-radius:8px;font-size:13px;display:none; }
+    #result-box.danger { background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.4);color:#ef4444; }
+    #result-box.success { background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.4);color:#10b981; }
+
+    footer { background:#0a0a0a;border-top:1px solid #1e293b;padding:16px 40px;text-align:center;font-size:11px;color:#475569; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a href="index.html" class="logo">
+      <div class="logo-icon">⚙️</div>
+      <div>
+        <h1>College A — Administration Panel</h1>
+        <span style="font-size:10px;color:#fca5a5;">Restricted Access · Chennai Campus</span>
+      </div>
+    </a>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="login.html">Student Login</a>
+      <a href="faculty.html">Faculty</a>
+    </nav>
+  </div>
+</header>
+
+<div class="alert-banner">
+  <div class="alert-inner">
+    ⚠️ <b>RESTRICTED:</b> This admin panel is monitored by CyberShield NEDI SOC. All access attempts are logged, risk-scored, and trigger real-time alerts on the security dashboard.
+  </div>
+</div>
+
+<div class="page">
+  <div class="admin-wrap">
+
+    <div class="warning-panel">
+      <h2>⚙️ <span>Admin</span> Panel</h2>
+
+      <div class="risk-card">
+        <div class="risk-title">🎯 HIGH-VALUE TARGET — SOC Alert</div>
+        <div class="risk-row"><span>Server</span><span>NEDI-ERP-APP-01</span></div>
+        <div class="risk-row"><span>IP Address</span><span>10.0.1.14</span></div>
+        <div class="risk-row"><span>OS</span><span>RHEL 8.6</span></div>
+        <div class="risk-row"><span>Status</span><span style="color:#f97316;">⚠️ MAINTENANCE</span></div>
+        <div class="risk-row"><span>Access attempts here</span><span style="color:#dc2626;">trigger RECON alert</span></div>
+      </div>
+
+      <div class="admin-services">
+        <div class="admin-svc" onclick="triggerAdminAction('user_mgmt')">
+          <span class="svc-icon">👥</span>
+          <div><h4>User Management</h4><p>Add / modify / delete student and staff accounts</p></div>
+        </div>
+        <div class="admin-svc" onclick="triggerAdminAction('fee_management')">
+          <span class="svc-icon">💰</span>
+          <div><h4>Fee Management</h4><p>Fee records, waivers, and payment tracking</p></div>
+        </div>
+        <div class="admin-svc" onclick="triggerAdminAction('reports')">
+          <span class="svc-icon">📊</span>
+          <div><h4>Institutional Reports</h4><p>NAAC, NIRF, and accreditation data exports</p></div>
+        </div>
+        <div class="admin-svc" onclick="triggerAdminAction('system_config')">
+          <span class="svc-icon">⚙️</span>
+          <div><h4>System Configuration</h4><p>Portal settings and service management</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="login-card">
+      <h3>🔒 Administrator Login</h3>
+      <p class="sub">Authorized personnel only. All access is monitored and logged.</p>
+
+      <form onsubmit="handleAdminLogin(event)">
+        <div class="form-group">
+          <label>Admin Username</label>
+          <input type="text" id="admin-user" placeholder="admin / principal / registrar">
+        </div>
+        <div class="form-group">
+          <label>Admin Password</label>
+          <input type="password" id="admin-pass" placeholder="••••••••">
+        </div>
+        <div class="form-group">
+          <label>Admin Key (2FA)</label>
+          <input type="text" id="admin-key" placeholder="6-digit OTP">
+        </div>
+        <button type="submit" class="btn-admin">🔓 Admin Access →</button>
+        <div id="result-box"></div>
+      </form>
+
+      <div style="margin-top:18px;padding:12px;background:rgba(239,68,68,0.06);border:1px dashed rgba(239,68,68,0.3);border-radius:8px;font-size:11px;color:#94a3b8;text-align:center;">
+        🛡️ This login is monitored in real time.<br>
+        Suspicious input → instant alert on <a href="http://localhost:8081/dashboard.html" target="_blank" style="color:#dc2626;">CyberShield Dashboard</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  College A Admin Panel · Server: NEDI-ERP-APP-01 (10.0.1.14) · Protected by CyberShield NEDI SOC
+</footer>
+
+<script src="college-beacon.js"></script>
+<script>
+  // Admin page access = RECON event
+  autoBeacon('COL-A-SOUTH', 'College A - South Campus', 'admin', 'RECON');
+
+  async function handleAdminLogin(e) {
+    e.preventDefault();
+    const user = document.getElementById('admin-user').value;
+    const pass = document.getElementById('admin-pass').value;
+    const key  = document.getElementById('admin-key').value;
+    const box  = document.getElementById('result-box');
+
+    const result = await formBeacon('COL-A-SOUTH', 'College A - South Campus', 'admin', user, pass + ' ' + key);
+    if (result) showDetectionToast(result);
+
+    box.style.display = 'block';
+    box.className = 'danger';
+    box.innerHTML = result
+      ? `🚫 Access Denied. ${result.eventType} detected. Risk Score: <b>${result.riskScore}/100</b>.<br>
+         Incident logged on <a href="http://localhost:8081/incidents.html" target="_blank" style="color:#ef4444;">CyberShield SOC</a>.`
+      : '🚫 Access Denied. Invalid credentials.';
+  }
+
+  async function triggerAdminAction(action) {
+    const result = await sendBeacon({
+      institutionCode: 'COL-A-SOUTH',
+      collegeName: 'College A - South Campus',
+      page: 'admin',
+      eventType: 'RECON',
+      inputPayload: action,
+      attackerIp: 'auto-detected'
+    });
+    if (result) showDetectionToast(result);
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+# ============================================================
+# CyberShield Nexus — Docker Compose
+# ENHANCEMENT (Part 1, #4): one-command startup
+#
+# Default: uses the embedded H2 file DB (zero setup), persisted
+# via a named volume so incidents/data survive container restarts.
+#
+# Usage:
+#   docker compose up --build
+#   Then open http://localhost:8081/index.html
+#
+# To switch to real PostgreSQL instead of H2, uncomment the
+# `postgres` service below and the datasource overrides in the
+# `app` service's environment block.
+# ============================================================
+services:
+  app:
+    build: .
+    container_name: cybershield-nexus
+    ports:
+      - "8081:8081"
+    volumes:
+      - cybershield_data:/app/data
+    environment:
+      # Email alerting is off by default in application.properties;
+      # override here instead of editing the jar, e.g.:
+      # - ALERT_EMAIL_ENABLED=true
+      # - ALERT_EMAIL_TO=soc-team@example.com
+      # - SPRING_MAIL_USERNAME=your_email@gmail.com
+      # - SPRING_MAIL_PASSWORD=your_16_char_app_password
+      #
+      # Uncomment these 4 lines + the postgres service below to use
+      # PostgreSQL instead of the embedded H2 file DB:
+      # - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/cybershield_db
+      # - SPRING_DATASOURCE_USERNAME=cybershield_user
+      # - SPRING_DATASOURCE_PASSWORD=CyberShield@2024
+      # - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.PostgreSQLDialect
+      SERVER_PORT: 8081
+    restart: unless-stopped
+
+  # Optional — real PostgreSQL 16 instead of embedded H2.
+  # postgres:
+  #   image: postgres:16
+  #   container_name: cybershield-postgres
+  #   environment:
+  #     POSTGRES_DB: cybershield_db
+  #     POSTGRES_USER: cybershield_user
+  #     POSTGRES_PASSWORD: CyberShield@2024
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - cybershield_pg_data:/var/lib/postgresql/data
+
+volumes:
+  cybershield_data:
+  # cybershield_pg_data:

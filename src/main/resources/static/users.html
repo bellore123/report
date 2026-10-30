@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Users & Role-Based Access Control (RBAC) — CyberShield Nexus</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .kpi-val { font-size: 24px; font-weight: 700; color: var(--text-primary); }
+    .kpi-lbl { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-muted); }
+    
+    .rbac-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 18px 20px;
+      margin-bottom: 20px;
+    }
+    .rbac-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 14px;
+    }
+    .rbac-role-box {
+      background: var(--bg-card2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .perm-chip {
+      display: inline-block;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(255,255,255,0.06);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+      margin: 2px 2px 0 0;
+    }
+  </style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-brand"><h1>CyberShield Nexus</h1><span>NEDI AI Cyber Command</span></div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <a href="/dashboard.html" class="nav-item"><span class="icon">📊</span> Dashboard</a>
+    <div class="nav-section-label">Assets</div>
+    <a href="/servers.html" class="nav-item"><span class="icon">🖥️</span> Servers</a>
+    <a href="/firewalls.html" class="nav-item"><span class="icon">🔥</span> Firewalls</a>
+    <a href="/loadbalancers.html" class="nav-item"><span class="icon">⚖️</span> Load Balancers</a>
+    <a href="/licenses.html" class="nav-item"><span class="icon">📋</span> Licenses</a>
+    <a href="/hardware.html" class="nav-item"><span class="icon">⚙️</span> Hardware</a>
+    <div class="nav-section-label">Security</div>
+    <a href="/incidents.html" class="nav-item"><span class="icon">🚨</span> Incidents</a>
+    <a href="/risk.html" class="nav-item"><span class="icon">📈</span> Risk & Attack Path</a>
+    <a href="/audit-log.html" class="nav-item"><span class="icon">📜</span> Audit Log</a>
+    <a href="/users.html" id="nav-users" class="nav-item active"><span class="icon">👤</span> Users & Roles</a>
+    <div class="nav-section-label">Tools</div>
+    <a href="/phishing-detector.html" class="nav-item"><span class="icon">🎣</span> Phishing Detector</a>
+  </nav>
+  <div class="sidebar-footer"><button onclick="logout()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:12px;">⏏ Sign Out</button></div>
+</aside>
+<header class="topbar">
+  <span class="topbar-title">Identity & Role-Based Access Control (RBAC)</span>
+  <div class="topbar-right">
+    <div class="topbar-user">
+      <div class="user-avatar" id="topbar-avatar">A</div>
+      <div><div style="font-weight:600;font-size:13px" id="topbar-username"></div>
+      <div style="font-size:10px;color:var(--text-muted)" id="topbar-role"></div></div>
+    </div>
+  </div>
+</header>
+<main class="main-content">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h2 style="font-size:20px;font-weight:700">Users & Role Directory</h2>
+      <p style="color:var(--text-muted);font-size:13px;margin-top:2px">Manage operator accounts, assign security roles, and enforce least-privilege RBAC policies</p>
+    </div>
+    <button class="btn btn-primary" onclick="openAdd()">＋ Add User</button>
+  </div>
+
+  <!-- KPI Strip -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <span class="kpi-lbl">Total Registered Users</span>
+      <span class="kpi-val" id="kpi-total-users">0</span>
+      <span style="font-size:11px;color:var(--text-muted)">Active accounts across NEDI</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-lbl">Admin Roles (CISO / SOC)</span>
+      <span class="kpi-val" style="color:var(--accent-red)" id="kpi-admin-users">0</span>
+      <span style="font-size:11px;color:var(--text-muted)">Full privilege & policy authorization</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-lbl">Server & Ops Admins</span>
+      <span class="kpi-val" style="color:var(--accent)" id="kpi-sa-users">0</span>
+      <span style="font-size:11px;color:var(--text-muted)">Infra, DB & Incident containment</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-lbl">Auditors & Viewers</span>
+      <span class="kpi-val" style="color:var(--accent-green)" id="kpi-viewer-users">0</span>
+      <span style="font-size:11px;color:var(--text-muted)">Read-only monitoring & reporting</span>
+    </div>
+  </div>
+
+  <!-- RBAC Role Architecture Card -->
+  <div class="rbac-card">
+    <div class="flex items-center justify-between">
+      <div>
+        <strong style="font-size:14px;color:var(--text-primary)">🔐 Role Definitions & Access Control Matrix</strong>
+        <p style="font-size:12px;color:var(--text-muted);margin-top:2px">Least-privilege authorization matrix enforced by Spring Security method pre-authorization filters</p>
+      </div>
+      <span class="spotlight-badge" style="background:rgba(0,212,255,0.1);color:var(--accent);border-color:rgba(0,212,255,0.3)">NIST SP 800-162 RBAC</span>
+    </div>
+    <div class="rbac-grid">
+      <div class="rbac-role-box">
+        <div class="flex items-center justify-between">
+          <span class="badge badge-red">ADMIN</span>
+          <span style="font-size:11px;font-weight:600;color:var(--text-muted)" id="role-count-admin">0 Users</span>
+        </div>
+        <div style="font-size:12px;color:var(--text-secondary);line-height:1.4">
+          <strong>Full Authority:</strong> Unrestricted CRUD on assets, firewall rules, load balancers, incident resolution, forensic reports, and user lifecycle administration.
+        </div>
+        <div style="margin-top:auto">
+          <div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px">Granted Entitlements:</div>
+          <span class="perm-chip">User Management</span>
+          <span class="perm-chip">Incident Resolution</span>
+          <span class="perm-chip">Asset Deletion</span>
+          <span class="perm-chip">Full Audit Trails</span>
+        </div>
+      </div>
+
+      <div class="rbac-role-box">
+        <div class="flex items-center justify-between">
+          <span class="badge badge-blue">SERVER_ADMIN</span>
+          <span style="font-size:11px;font-weight:600;color:var(--text-muted)" id="role-count-sa">0 Users</span>
+        </div>
+        <div style="font-size:12px;color:var(--text-secondary);line-height:1.4">
+          <strong>Operations & Containment:</strong> Manage servers, firewalls, and load balancers; execute incident containment & investigations; view audit logs. Cannot delete users or resolve security policies.
+        </div>
+        <div style="margin-top:auto">
+          <div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px">Granted Entitlements:</div>
+          <span class="perm-chip">Server / LB Ops</span>
+          <span class="perm-chip">Firewall Rules</span>
+          <span class="perm-chip">Incident Containment</span>
+          <span class="perm-chip">Backend Health</span>
+        </div>
+      </div>
+
+      <div class="rbac-role-box">
+        <div class="flex items-center justify-between">
+          <span class="badge badge-gray">VIEWER</span>
+          <span style="font-size:11px;font-weight:600;color:var(--text-muted)" id="role-count-viewer">0 Users</span>
+        </div>
+        <div style="font-size:12px;color:var(--text-secondary);line-height:1.4">
+          <strong>Read-Only Observer:</strong> View-only permissions across dashboard telemetry, service risk ratings, load balancers, and assigned college systems. Restricted from mutating operations.
+        </div>
+        <div style="margin-top:auto">
+          <div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px">Granted Entitlements:</div>
+          <span class="perm-chip">Read Dashboard</span>
+          <span class="perm-chip">Inspect Telemetry</span>
+          <span class="perm-chip">Generate Reports</span>
+          <span class="perm-chip">Zero Mutation</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- User Table Card -->
+  <div class="card">
+    <div class="card-header" style="flex-wrap:wrap;gap:12px">
+      <span class="card-title" id="user-count">Users Directory</span>
+      <div class="flex gap-2 items-center" style="margin-left:auto">
+        <button class="btn btn-sm btn-secondary role-filter-btn active" onclick="setRoleFilter('ALL', this)">All</button>
+        <button class="btn btn-sm btn-secondary role-filter-btn" onclick="setRoleFilter('ADMIN', this)">ADMIN</button>
+        <button class="btn btn-sm btn-secondary role-filter-btn" onclick="setRoleFilter('SERVER_ADMIN', this)">SERVER_ADMIN</button>
+        <button class="btn btn-sm btn-secondary role-filter-btn" onclick="setRoleFilter('VIEWER', this)">VIEWER</button>
+        <input type="text" id="user-search" class="form-control" style="width:220px;padding:5px 10px;font-size:12px" placeholder="🔍 Search username, email..." oninput="applyUserFilter()">
+      </div>
+    </div>
+    <div class="table-wrapper">
+      <div id="loading"><div class="spinner"></div></div>
+      <table id="user-table" style="display:none">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Email</th>
+            <th>Assigned Role</th>
+            <th>Department / Scope</th>
+            <th>Account Status</th>
+            <th>Failed Logins</th>
+            <th>Provisioned</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="user-body"></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-title">Add User</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="u-id">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group"><label class="form-label">Username *</label><input class="form-control" id="f-username" required placeholder="e.g. jdoe"></div>
+        <div class="form-group"><label class="form-label">Email *</label><input class="form-control" id="f-email" type="email" placeholder="user@cybershield.local"></div>
+        <div class="form-group"><label class="form-label" id="pwd-label">Password *</label><input class="form-control" id="f-password" type="password" placeholder="min 6 characters"></div>
+        <div class="form-group"><label class="form-label">Role</label>
+          <select class="form-control" id="f-role"><option>VIEWER</option><option>SERVER_ADMIN</option><option>ADMIN</option></select></div>
+        <div class="form-group"><label class="form-label">Department / Scope</label><input class="form-control" id="f-department" placeholder="e.g. Infrastructure, SOC, Governance"></div>
+        <div class="form-group"><label class="form-label">Status</label>
+          <select class="form-control" id="f-active"><option value="true">Active</option><option value="false">Inactive (blocked from login)</option></select></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="save()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+<script src="/js/auth.js"></script>
+<script>
+requireAuth(); renderTopbarUser();
+
+// ADMIN-only page — redirect anyone else back to the dashboard
+if (!isAdmin()) {
+  toast('Users & Roles is available to ADMIN accounts only', 'error');
+  setTimeout(() => window.location.href = '/dashboard.html', 1200);
+}
+
+let users = [];
+let currentUserId = null;
+let activeRoleFilter = 'ALL';
+
+async function load() {
+  try {
+    users = await apiGet('/users');
+    if (!Array.isArray(users)) users = [users];
+    currentUserId = getUser() ? (users.find(u => u.username === getUser().username) || {}).id : null;
+    
+    // Update KPI counters
+    const adminCount = users.filter(u => u.role === 'ADMIN').length;
+    const saCount = users.filter(u => u.role === 'SERVER_ADMIN').length;
+    const viewerCount = users.filter(u => u.role === 'VIEWER').length;
+
+    document.getElementById('kpi-total-users').textContent = users.length;
+    document.getElementById('kpi-admin-users').textContent = adminCount;
+    document.getElementById('kpi-sa-users').textContent = saCount;
+    document.getElementById('kpi-viewer-users').textContent = viewerCount;
+
+    document.getElementById('role-count-admin').textContent = `${adminCount} Users`;
+    document.getElementById('role-count-sa').textContent = `${saCount} Users`;
+    document.getElementById('role-count-viewer').textContent = `${viewerCount} Users`;
+
+    applyUserFilter();
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('user-table').style.display = '';
+  } catch (e) { toast('Failed to load users: ' + e.message, 'error'); }
+}
+
+function setRoleFilter(role, el) {
+  activeRoleFilter = role;
+  document.querySelectorAll('.role-filter-btn').forEach(btn => btn.classList.remove('active'));
+  if (el) el.classList.add('active');
+  applyUserFilter();
+}
+
+function applyUserFilter() {
+  const search = (document.getElementById('user-search').value || '').toLowerCase();
+  const filtered = users.filter(u => {
+    if (activeRoleFilter !== 'ALL' && u.role !== activeRoleFilter) return false;
+    if (search) {
+      const matchU = (u.username || '').toLowerCase().includes(search);
+      const matchE = (u.email || '').toLowerCase().includes(search);
+      const matchD = (u.department || '').toLowerCase().includes(search);
+      return matchU || matchE || matchD;
+    }
+    return true;
+  });
+
+  render(filtered);
+  document.getElementById('user-count').textContent = `Users (${filtered.length} of ${users.length})`;
+}
+
+function roleBadge(role) {
+  const map = { ADMIN: 'badge-red', SERVER_ADMIN: 'badge-blue', VIEWER: 'badge-gray' };
+  return `<span class="badge ${map[role] || 'badge-gray'}">${role}</span>`;
+}
+
+function render(data) {
+  document.getElementById('user-body').innerHTML = data.map(u => `<tr>
+    <td>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div class="user-avatar" style="width:28px;height:28px;font-size:12px;background:var(--accent);color:#000;">${(u.username||'U')[0].toUpperCase()}</div>
+        <div>
+          <strong style="color:var(--text-primary);font-size:13px">${u.username}</strong>
+          ${u.id === currentUserId ? '<span class="badge badge-green" style="font-size:9px;margin-left:4px">YOU</span>' : ''}
+        </div>
+      </div>
+    </td>
+    <td class="text-mono" style="font-size:12px;color:var(--text-secondary)">${u.email || '—'}</td>
+    <td>${roleBadge(u.role)}</td>
+    <td style="font-size:12px;color:var(--text-primary)">${u.department || '—'}</td>
+    <td>${u.active
+        ? '<span class="badge badge-green">Active</span>'
+        : '<span class="badge badge-gray">Inactive</span>'}</td>
+    <td style="font-size:12px;text-align:center;">
+      <span class="badge ${u.failedLoginAttempts > 0 ? 'badge-orange' : 'badge-gray'}">${u.failedLoginAttempts || 0}</span>
+    </td>
+    <td style="font-size:11px;color:var(--text-muted)">${formatDate(u.createdAt)}</td>
+    <td>
+      <button class="btn btn-sm btn-secondary" onclick="edit(${u.id})">✏ Edit</button>
+      <button class="btn btn-sm btn-danger" onclick="del(${u.id})" style="margin-left:4px" ${u.id === currentUserId ? 'disabled title="Cannot delete your own account"' : ''}>🗑</button>
+    </td>
+  </tr>`).join('') || '<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--text-muted)">No users found matching filter.</td></tr>';
+}
+
+function openAdd() {
+  document.getElementById('modal-title').textContent = 'Add User';
+  document.getElementById('u-id').value = '';
+  document.getElementById('pwd-label').textContent = 'Password *';
+  document.getElementById('f-password').placeholder = 'min 6 characters';
+  ['username','email','password','department'].forEach(f => document.getElementById('f-'+f).value = '');
+  document.getElementById('f-role').value = 'VIEWER';
+  document.getElementById('f-active').value = 'true';
+  document.getElementById('modal').classList.add('open');
+}
+
+function edit(id) {
+  const u = users.find(x => x.id === id); if (!u) return;
+  document.getElementById('modal-title').textContent = 'Edit User';
+  document.getElementById('u-id').value = u.id;
+  document.getElementById('f-username').value = u.username;
+  document.getElementById('f-username').disabled = true;
+  document.getElementById('f-email').value = u.email || '';
+  document.getElementById('f-password').value = '';
+  document.getElementById('pwd-label').textContent = 'New Password (optional)';
+  document.getElementById('f-password').placeholder = 'leave blank to keep current password';
+  document.getElementById('f-role').value = u.role;
+  document.getElementById('f-department').value = u.department || '';
+  document.getElementById('f-active').value = String(u.active);
+  document.getElementById('modal').classList.add('open');
+}
+
+async function save() {
+  const id = document.getElementById('u-id').value;
+  const body = {
+    username: document.getElementById('f-username').value,
+    email: document.getElementById('f-email').value,
+    password: document.getElementById('f-password').value || undefined,
+    role: document.getElementById('f-role').value,
+    department: document.getElementById('f-department').value,
+    isActive: document.getElementById('f-active').value === 'true'
+  };
+  if (!id && !body.password) { toast('Password is required for new users', 'error'); return; }
+  try {
+    if (id) await apiPut('/users/' + id, body);
+    else await apiPost('/users', body);
+    toast(id ? 'User updated!' : 'User created!', 'success');
+    closeModal(); load();
+  } catch (e) { toast('Error: ' + e.message, 'error'); }
+}
+
+async function del(id) {
+  if (id === currentUserId) { toast('You cannot delete your own account', 'error'); return; }
+  if (!confirm('Delete this user? This cannot be undone.')) return;
+  try { await apiDelete('/users/' + id); toast('User deleted', 'success'); load(); }
+  catch (e) { toast('Error: ' + e.message, 'error'); }
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  document.getElementById('f-username').disabled = false;
+}
+
+load();
+</script>
+</body>
+</html>

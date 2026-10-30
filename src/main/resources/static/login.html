@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEDI Cyber Command Center - Login</title>
+  <meta name="description" content="Login to CyberShield Nexus for the NEDI AI Cyber Command Center demo">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink: #e8eef8;
+      --muted: #9aacbf;
+      --soft: #c9d7e8;
+      --panel: rgba(8, 17, 31, 0.86);
+      --panel-strong: rgba(11, 23, 42, 0.94);
+      --line: rgba(148, 163, 184, 0.22);
+      --cyan: #19c8ff;
+      --green: #2dd4bf;
+      --red: #fb7185;
+      --amber: #fbbf24;
+    }
+    body {
+      min-height: 100vh;
+      font-family: Inter, system-ui, sans-serif;
+      color: var(--ink);
+      background: #060b14;
+      overflow-x: hidden;
+    }
+    .image-rail {
+      position: fixed;
+      inset: 0;
+      z-index: -3;
+      background-size: cover;
+      background-position: center;
+      animation: slideImages 24s infinite;
+    }
+    .image-rail::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(3, 7, 18, 0.92), rgba(3, 7, 18, 0.68), rgba(3, 7, 18, 0.78)),
+        radial-gradient(circle at 72% 20%, rgba(25, 200, 255, 0.25), transparent 34%),
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: auto, auto, 44px 44px, 44px 44px;
+    }
+    @keyframes slideImages {
+      0%, 27% { background-image: url("https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1800&q=80"); }
+      33%, 60% { background-image: url("https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1800&q=80"); }
+      66%, 94% { background-image: url("https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1800&q=80"); }
+      100% { background-image: url("https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1800&q=80"); }
+    }
+    .shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(360px, 460px);
+      gap: 42px;
+      align-items: center;
+      padding: 40px clamp(22px, 5vw, 78px);
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      color: #fff;
+      text-decoration: none;
+      margin-bottom: 56px;
+    }
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--cyan), var(--green));
+      color: #06111d;
+      font-weight: 900;
+      box-shadow: 0 18px 50px rgba(25, 200, 255, 0.28);
+    }
+    .brand strong { display: block; font-size: 15px; letter-spacing: 0.02em; }
+    .brand span { display: block; font-size: 11px; color: var(--muted); }
+    .story h1 {
+      max-width: 900px;
+      font-size: clamp(42px, 6vw, 78px);
+      line-height: 0.94;
+      letter-spacing: 0;
+      margin-bottom: 22px;
+    }
+    .story p {
+      max-width: 700px;
+      color: var(--soft);
+      font-size: 17px;
+      line-height: 1.75;
+      margin-bottom: 30px;
+    }
+    .scenario-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      max-width: 840px;
+    }
+    .scenario-card {
+      min-height: 118px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      background: rgba(8, 17, 31, 0.58);
+      backdrop-filter: blur(16px);
+      border-radius: 8px;
+    }
+    .scenario-card b {
+      display: block;
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+    .scenario-card span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .login-card {
+      background: var(--panel-strong);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      box-shadow: 0 30px 90px rgba(0,0,0,0.45);
+      overflow: hidden;
+    }
+    .login-head {
+      padding: 26px 28px 18px;
+      border-bottom: 1px solid var(--line);
+    }
+    .status-strip {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 22px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      color: var(--green);
+    }
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      display: inline-block;
+      border-radius: 99px;
+      background: var(--green);
+      box-shadow: 0 0 18px var(--green);
+      margin-right: 8px;
+    }
+    .login-head h2 { font-size: 24px; margin-bottom: 8px; }
+    .login-head p { color: var(--muted); font-size: 13px; line-height: 1.55; }
+    form { padding: 24px 28px 22px; }
+    .field { margin-bottom: 16px; }
+    label {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--soft);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    input {
+      width: 100%;
+      min-height: 46px;
+      border: 1px solid var(--line);
+      background: rgba(15, 23, 42, 0.92);
+      color: var(--ink);
+      border-radius: 8px;
+      padding: 0 14px;
+      outline: none;
+      font: inherit;
+    }
+    input:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 0 0 3px rgba(25, 200, 255, 0.13);
+    }
+    .error-msg {
+      display: none;
+      margin-bottom: 16px;
+      padding: 11px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(251, 113, 133, 0.35);
+      background: rgba(251, 113, 133, 0.11);
+      color: #fecdd3;
+      font-size: 13px;
+    }
+    .error-msg.show { display: block; }
+    .btn-login {
+      width: 100%;
+      min-height: 48px;
+      border: 0;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--cyan), var(--green));
+      color: #03111f;
+      font-weight: 800;
+      cursor: pointer;
+      font-size: 14px;
+      letter-spacing: 0.01em;
+    }
+    .btn-login:disabled { opacity: 0.65; cursor: wait; }
+    .demo-creds {
+      padding: 0 28px 26px;
+    }
+    .demo-creds h3 {
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .cred {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 0;
+      border-top: 1px solid rgba(148, 163, 184, 0.12);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+      color: var(--soft);
+    }
+    .cred button {
+      border: 1px solid rgba(25, 200, 255, 0.3);
+      background: rgba(25, 200, 255, 0.08);
+      color: var(--cyan);
+      border-radius: 6px;
+      padding: 5px 9px;
+      cursor: pointer;
+      font: inherit;
+      font-size: 11px;
+    }
+    .back-link {
+      display: inline-block;
+      margin-top: 18px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+    }
+    @media (max-width: 980px) {
+      .shell { grid-template-columns: 1fr; padding-block: 28px; }
+      .brand { margin-bottom: 34px; }
+      .scenario-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="image-rail" aria-hidden="true"></div>
+  <main class="shell">
+    <section class="story">
+      <a class="brand" href="/index.html">
+        <div class="brand-mark">N</div>
+        <div>
+          <strong>NEDI Cyber Command</strong>
+          <span>Powered by CyberShield Nexus</span>
+        </div>
+      </a>
+      <h1>AI Cyber Command Center for national education services.</h1>
+      <p>
+        Monitor student, faculty, examination, ERP, library, mail, and LMS services across a fictional national education infrastructure. This demo uses simulated enterprise telemetry, real authentication, role-based access, risk scoring, incidents, and audit trails.
+      </p>
+      <div class="scenario-grid">
+        <div class="scenario-card">
+          <b>500+</b>
+          <span>institutions represented as a realistic education service network</span>
+        </div>
+        <div class="scenario-card">
+          <b>8</b>
+          <span>critical digital services mapped to servers, firewalls, licenses, and hardware</span>
+        </div>
+        <div class="scenario-card">
+          <b>92%</b>
+          <span>sample exam portal risk scenario for viva and live demonstration</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="login-card" aria-label="Command center login">
+      <div class="login-head">
+        <div class="status-strip">
+          <span><i class="live-dot"></i>SECURE DEMO ONLINE</span>
+          <span>NEDI-SOC-01</span>
+        </div>
+        <h2>Operator Login</h2>
+        <p>Use a seeded demo account to enter the SOC dashboard. Permissions are enforced by the Spring Security JWT backend.</p>
+      </div>
+
+      <form id="login-form">
+        <div class="error-msg" id="error-msg"><span id="error-text">Invalid credentials</span></div>
+        <div class="field">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" placeholder="admin" autocomplete="username" required>
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" placeholder="Admin@123" autocomplete="current-password" required>
+        </div>
+        <button type="submit" class="btn-login" id="btn-login">Enter Command Center</button>
+      </form>
+
+      <div class="demo-creds">
+        <h3>Demo Operators &amp; Roles</h3>
+        <div class="cred" style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <div>
+            <div style="font-weight:600;font-size:13px;">admin / Admin@123</div>
+            <div style="font-size:11px;color:var(--muted);"><span style="color:#f87171;font-weight:700;">ADMIN</span> — Full Access &amp; User Management</div>
+          </div>
+          <button type="button" onclick="fillCreds('admin')">Use</button>
+        </div>
+        <div class="cred" style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <div>
+            <div style="font-weight:600;font-size:13px;">serveradmin / Admin@123</div>
+            <div style="font-size:11px;color:var(--muted);"><span style="color:#60a5fa;font-weight:700;">SERVER_ADMIN</span> — Infrastructure &amp; Asset Ops</div>
+          </div>
+          <button type="button" onclick="fillCreds('serveradmin')">Use</button>
+        </div>
+        <div class="cred" style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <div>
+            <div style="font-weight:600;font-size:13px;">viewer / Admin@123</div>
+            <div style="font-size:11px;color:var(--muted);"><span style="color:#34d399;font-weight:700;">VIEWER</span> — Read-Only SOC Monitoring</div>
+          </div>
+          <button type="button" onclick="fillCreds('viewer')">Use</button>
+        </div>
+        <a class="back-link" href="/index.html">Back to NEDI scenario</a>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // FIX: relative path instead of a hardcoded absolute localhost URL —
+    // works both locally and on a deployed domain (Render, etc.)
+    const API = '/api';
+
+    if (localStorage.getItem('cs_token')) {
+      window.location.href = '/dashboard.html';
+    }
+
+    function fillCreds(user) {
+      document.getElementById('username').value = user;
+      document.getElementById('password').value = 'Admin@123';
+    }
+
+    document.getElementById('login-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const btn = document.getElementById('btn-login');
+      const errorEl = document.getElementById('error-msg');
+      const errorText = document.getElementById('error-text');
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+
+      btn.disabled = true;
+      btn.textContent = 'Verifying operator...';
+      errorEl.classList.remove('show');
+
+      try {
+        const res = await fetch(API + '/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          errorText.textContent = data.message || data.error || 'Invalid credentials';
+          errorEl.classList.add('show');
+          return;
+        }
+
+        localStorage.setItem('cs_token', data.token);
+        localStorage.setItem('cs_user', JSON.stringify({
+          username: data.username,
+          role: data.role
+        }));
+        window.location.href = '/dashboard.html';
+      } catch (err) {
+        errorText.textContent = 'Could not reach the server. Please check your connection and try again.';
+        errorEl.classList.add('show');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Enter Command Center';
+      }
+    });
+  </script>
+</body>
+</html>

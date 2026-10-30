@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEDI AI Cyber Command Center</title>
+  <meta name="description" content="CyberShield Nexus demo scenario for a fictional National Education Digital Infrastructure SOC">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #050914;
+      --panel: rgba(8, 17, 31, 0.82);
+      --panel-solid: #0b1424;
+      --line: rgba(148, 163, 184, 0.22);
+      --text: #edf5ff;
+      --soft: #c7d5e8;
+      --muted: #8fa3bb;
+      --cyan: #19c8ff;
+      --teal: #2dd4bf;
+      --amber: #fbbf24;
+      --red: #fb7185;
+    }
+    body {
+      min-height: 100vh;
+      font-family: Inter, system-ui, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
+    .hero-bg {
+      position: fixed;
+      inset: 0;
+      z-index: -3;
+      background-size: cover;
+      background-position: center;
+      animation: bgSlide 27s infinite;
+    }
+    .hero-bg::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(5, 9, 20, 0.28), #050914 92%),
+        linear-gradient(90deg, rgba(5, 9, 20, 0.93), rgba(5, 9, 20, 0.55), rgba(5, 9, 20, 0.88)),
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: auto, auto, 46px 46px, 46px 46px;
+    }
+    @keyframes bgSlide {
+      0%, 26% { background-image: url("https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1900&q=80"); }
+      33%, 59% { background-image: url("https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1900&q=80"); }
+      66%, 92% { background-image: url("https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1900&q=80"); }
+      100% { background-image: url("https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1900&q=80"); }
+    }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px clamp(20px, 5vw, 72px);
+      background: rgba(5, 9, 20, 0.72);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+      backdrop-filter: blur(18px);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--text);
+      text-decoration: none;
+    }
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--cyan), var(--teal));
+      color: #04111d;
+      font-weight: 900;
+    }
+    .brand strong { display: block; font-size: 15px; }
+    .brand span { display: block; font-size: 11px; color: var(--muted); }
+    nav { display: flex; align-items: center; gap: 18px; }
+    nav a {
+      color: var(--soft);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 0 16px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--cyan), var(--teal));
+      color: #03111f;
+    }
+    .btn-secondary {
+      border: 1px solid var(--line);
+      color: var(--text);
+      background: rgba(8, 17, 31, 0.54);
+    }
+    main { overflow: hidden; }
+    .hero {
+      min-height: calc(100vh - 80px);
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(340px, 520px);
+      gap: 42px;
+      align-items: center;
+      padding: 38px clamp(20px, 5vw, 72px) 74px;
+    }
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+      padding: 8px 10px;
+      border: 1px solid rgba(45, 212, 191, 0.35);
+      border-radius: 8px;
+      background: rgba(45, 212, 191, 0.08);
+      color: #9ff7eb;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+    }
+    .hero h1 {
+      max-width: 930px;
+      font-size: clamp(42px, 6vw, 82px);
+      line-height: 0.94;
+      letter-spacing: 0;
+      margin-bottom: 24px;
+    }
+    .hero p {
+      max-width: 750px;
+      color: var(--soft);
+      font-size: 17px;
+      line-height: 1.75;
+      margin-bottom: 28px;
+    }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 28px; }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      max-width: 900px;
+    }
+    .metric {
+      min-height: 98px;
+      padding: 14px;
+      background: rgba(8, 17, 31, 0.58);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      backdrop-filter: blur(14px);
+    }
+    .metric b { display: block; font-size: 26px; margin-bottom: 5px; }
+    .metric span { color: var(--muted); font-size: 12px; line-height: 1.4; }
+    .command-card {
+      background: rgba(8, 17, 31, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      box-shadow: 0 28px 90px rgba(0,0,0,0.42);
+      overflow: hidden;
+    }
+    .command-head {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+    }
+    .command-body { padding: 20px; }
+    .risk-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+      padding-bottom: 18px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+    }
+    .risk-row h2 { font-size: 18px; margin-bottom: 6px; }
+    .risk-row span { color: var(--muted); font-size: 13px; }
+    .risk-score {
+      width: 112px;
+      height: 112px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      border: 8px solid rgba(251, 113, 133, 0.3);
+      color: #fecdd3;
+      font-size: 28px;
+      font-weight: 900;
+      background: rgba(251, 113, 133, 0.1);
+    }
+    .signal-list { display: grid; gap: 10px; }
+    .signal {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.14);
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.48);
+      font-size: 13px;
+      color: var(--soft);
+    }
+    .signal strong { color: var(--text); }
+    section.band {
+      padding: 72px clamp(20px, 5vw, 72px);
+      background: #050914;
+    }
+    .section-head { max-width: 860px; margin-bottom: 28px; }
+    .section-head h2 { font-size: clamp(30px, 4vw, 46px); margin-bottom: 12px; }
+    .section-head p { color: var(--soft); line-height: 1.7; }
+    .service-grid, .demo-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .service, .demo-step {
+      padding: 18px;
+      min-height: 160px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel-solid);
+    }
+    .service b, .demo-step b { display: block; margin-bottom: 9px; }
+    .service span, .demo-step span { color: var(--muted); font-size: 13px; line-height: 1.55; }
+    .arch {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 10px;
+      align-items: center;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--panel-solid);
+      overflow-x: auto;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+    }
+    .node {
+      min-width: 130px;
+      padding: 14px 10px;
+      border-radius: 8px;
+      background: rgba(25, 200, 255, 0.08);
+      border: 1px solid rgba(25, 200, 255, 0.22);
+      text-align: center;
+      color: #b9f2ff;
+    }
+    .arrow { color: var(--teal); text-align: center; font-size: 20px; }
+    footer {
+      padding: 28px clamp(20px, 5vw, 72px);
+      background: #030712;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    @media (max-width: 1000px) {
+      nav a { display: none; }
+      .hero { grid-template-columns: 1fr; }
+      .metrics, .service-grid, .demo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 620px) {
+      header { align-items: flex-start; gap: 14px; flex-direction: column; }
+      .metrics, .service-grid, .demo-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="hero-bg" aria-hidden="true"></div>
+  <header>
+    <a class="brand" href="/index.html">
+      <div class="brand-mark">N</div>
+      <div><strong>NEDI Cyber Command</strong><span>CyberShield Nexus demo</span></div>
+    </a>
+    <nav aria-label="Primary">
+      <a href="#services">Services</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#demo">Demo Flow</a>
+      <a class="btn btn-secondary" href="/login.html">Login</a>
+      <a class="btn btn-primary" href="/dashboard.html">Open SOC</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div>
+        <div class="kicker">FICTIONAL ENTERPRISE SCENARIO - SAFE DEMO</div>
+        <h1>National Education Digital Infrastructure AI Cyber Command Center</h1>
+        <p>
+          NEDI is a fictional organization managing digital services for hundreds of educational institutions. CyberShield Nexus turns its servers, firewalls, databases, licenses, and logs into a SOC-style dashboard with AI-assisted risk analysis, attack-path visibility, incident handling, and executive reporting.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="/login.html">Enter Real Login</a>
+          <a class="btn btn-secondary" href="#demo">See Demo Steps</a>
+        </div>
+        <div class="metrics">
+          <div class="metric"><b>500+</b><span>colleges represented in the scenario</span></div>
+          <div class="metric"><b>8</b><span>education services monitored centrally</span></div>
+          <div class="metric"><b>15</b><span>asset relationships powering attack paths</span></div>
+          <div class="metric"><b>RBAC</b><span>admin, server admin, and viewer roles</span></div>
+        </div>
+      </div>
+
+      <aside class="command-card" aria-label="Sample incident summary">
+        <div class="command-head"><span>NEDI-SOC LIVE</span><span>exam.nedi.local</span></div>
+        <div class="command-body">
+          <div class="risk-row">
+            <div>
+              <h2>Exam Portal Risk Spike</h2>
+              <span>Abnormal login activity, stale patches, expired dependency, and exposed dependency path detected.</span>
+            </div>
+            <div class="risk-score">92%</div>
+          </div>
+          <div class="signal-list">
+            <div class="signal"><strong>Business Impact</strong><span>High</span></div>
+            <div class="signal"><strong>Affected Assets</strong><span>6 services</span></div>
+            <div class="signal"><strong>AI Recommendation</strong><span>Patch, review auth, isolate path</span></div>
+            <div class="signal"><strong>Workflow</strong><span>Investigate -> Respond -> Resolve</span></div>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="band" id="services">
+      <div class="section-head">
+        <h2>Realistic Education Service Landscape</h2>
+        <p>Each NEDI service can have its own servers, databases, network controls, licenses, and risk profile. The project stays ethical by simulating events instead of touching real systems.</p>
+      </div>
+      <div class="service-grid">
+        <div class="service"><b>student.nedi.local</b><span>Student portal, profile, fee, and academic records service.</span></div>
+        <div class="service"><b>faculty.nedi.local</b><span>Faculty attendance, course, and evaluation workflow.</span></div>
+        <div class="service"><b>exam.nedi.local</b><span>High-impact examination portal used for the risk-spike demo.</span></div>
+        <div class="service"><b>erp.nedi.local</b><span>Finance, operations, and administrative ERP service.</span></div>
+        <div class="service"><b>admission.nedi.local</b><span>Admissions and applicant data workflow.</span></div>
+        <div class="service"><b>library.nedi.local</b><span>Digital library and resource access service.</span></div>
+        <div class="service"><b>lms.nedi.local</b><span>Learning management system for classes and submissions.</span></div>
+        <div class="service"><b>mail.nedi.local</b><span>Institutional email and identity-adjacent communication.</span></div>
+      </div>
+    </section>
+
+    <section class="band" id="architecture">
+      <div class="section-head">
+        <h2>How The Architecture Works</h2>
+        <p>Monitoring agents send safe, simulated telemetry into CyberShield Nexus. The dashboard correlates asset health, audit logs, firewall status, risk indicators, and incidents.</p>
+      </div>
+      <div class="arch">
+        <div class="node">College A<br>Student Portal</div><div class="arrow">-></div>
+        <div class="node">Web Server<br>Firewall</div><div class="arrow">-></div>
+        <div class="node">NEDI Agent<br>Telemetry</div><div class="arrow">-></div>
+        <div class="node">CyberShield<br>AI Command</div>
+      </div>
+    </section>
+
+    <section class="band" id="demo">
+      <div class="section-head">
+        <h2>Demo Flow Judges Can Follow</h2>
+        <p>This gives you a clean story for viva: normal operation, simulated incident, AI explanation, dependency view, report, and remediation.</p>
+      </div>
+      <div class="demo-grid">
+        <div class="demo-step"><b>1. Open Student Portal</b><span>Explain that services are normal and monitored centrally.</span></div>
+        <div class="demo-step"><b>2. Login Activity</b><span>Students, faculty, and admins create ordinary audit events.</span></div>
+        <div class="demo-step"><b>3. Simulate Incident</b><span>Exam Portal shows abnormal login and infrastructure risk signals.</span></div>
+        <div class="demo-step"><b>4. SOC Updates</b><span>Dashboard receives security events, asset health, firewall state, and logs.</span></div>
+        <div class="demo-step"><b>5. AI Explains</b><span>The system explains risk factors and prioritizes the affected service.</span></div>
+        <div class="demo-step"><b>6. View Network Map</b><span>Show the dependency and BFS attack path from user to database.</span></div>
+        <div class="demo-step"><b>7. One-Click Response</b><span>Move the incident to investigation and describe containment.</span></div>
+        <div class="demo-step"><b>8. Resolve</b><span>Mark handled and show the platform returning to a healthy posture.</span></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>NEDI is fictional and used only for a safe cybersecurity demo.</span>
+    <span>CyberShield Nexus - AI-assisted security operations platform</span>
+  </footer>
+</body>
+</html>

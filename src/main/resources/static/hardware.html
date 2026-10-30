@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hardware — CyberShield Nexus</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-brand"><h1>CyberShield Nexus</h1><span>NEDI AI Cyber Command</span></div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <a href="/dashboard.html" class="nav-item"><span class="icon">📊</span> Dashboard</a>
+    <div class="nav-section-label">Assets</div>
+    <a href="/servers.html" class="nav-item"><span class="icon">🖥️</span> Servers</a>
+    <a href="/firewalls.html" class="nav-item"><span class="icon">🔥</span> Firewalls</a>
+    <a href="/loadbalancers.html" class="nav-item"><span class="icon">⚖️</span> Load Balancers</a>
+    <a href="/licenses.html" class="nav-item"><span class="icon">📋</span> Licenses</a>
+    <a href="/hardware.html" class="nav-item active"><span class="icon">⚙️</span> Hardware</a>
+    <div class="nav-section-label">Security</div>
+    <a href="/incidents.html" class="nav-item"><span class="icon">🚨</span> Incidents</a>
+    <a href="/risk.html" class="nav-item"><span class="icon">📈</span> Risk & Attack Path</a>
+    <a href="/audit-log.html" class="nav-item"><span class="icon">📜</span> Audit Log</a>
+    <a href="/users.html" id="nav-users" class="nav-item"><span class="icon">👤</span> Users & Roles</a>
+    <div class="nav-section-label">Tools</div>
+    <a href="/phishing-detector.html" class="nav-item"><span class="icon">🎣</span> Phishing Detector</a>
+  </nav>
+  <div class="sidebar-footer"><button onclick="logout()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:12px;">⏏ Sign Out</button></div>
+</aside>
+<header class="topbar">
+  <span class="topbar-title">Hardware Inventory</span>
+  <div class="topbar-right">
+    <div class="topbar-user">
+      <div class="user-avatar" id="topbar-avatar">A</div>
+      <div><div style="font-weight:600;font-size:13px" id="topbar-username"></div>
+      <div style="font-size:10px;color:var(--text-muted)" id="topbar-role"></div></div>
+    </div>
+  </div>
+</header>
+<main class="main-content">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h2 style="font-size:20px;font-weight:700">Hardware Inventory</h2>
+      <p style="color:var(--text-muted);font-size:13px;margin-top:2px">Network switches, load balancers, UPS units</p>
+    </div>
+    <button class="btn btn-primary" id="add-hw-btn" onclick="openAdd()">＋ Add Hardware</button>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="card-title" id="hw-count">Hardware</span></div>
+    <div class="table-wrapper">
+      <div id="loading"><div class="spinner"></div></div>
+      <table id="hw-table" style="display:none">
+        <thead><tr><th>Name</th><th>Type</th><th>Manufacturer</th><th>Model</th><th>Status</th><th>Asset Tag</th><th>Warranty</th><th>Actions</th></tr></thead>
+        <tbody id="hw-body"></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-title">Add Hardware</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="hw-id">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group"><label class="form-label">Name *</label><input class="form-control" id="f-name" required></div>
+        <div class="form-group"><label class="form-label">Type</label>
+          <select class="form-control" id="f-type"><option>SWITCH</option><option>ROUTER</option><option>LOAD_BALANCER</option><option>UPS</option><option>RACK</option><option>STORAGE_ARRAY</option><option>PATCH_PANEL</option><option>CABLE</option><option>OTHER</option></select></div>
+        <div class="form-group"><label class="form-label">Manufacturer</label><input class="form-control" id="f-mfr"></div>
+        <div class="form-group"><label class="form-label">Model</label><input class="form-control" id="f-model"></div>
+        <div class="form-group"><label class="form-label">Status</label>
+          <select class="form-control" id="f-status"><option>IN_USE</option><option>SPARE</option><option>MAINTENANCE</option><option>DECOMMISSIONED</option></select></div>
+        <div class="form-group"><label class="form-label">Asset Tag *</label><input class="form-control" id="f-tag" required></div>
+        <div class="form-group"><label class="form-label">Location</label><input class="form-control" id="f-location"></div>
+        <div class="form-group"><label class="form-label">Warranty Expiry</label><input class="form-control" id="f-warranty" type="date"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="save()">Save</button>
+    </div>
+  </div>
+</div>
+<div id="toast-container"></div>
+<script src="/js/auth.js"></script>
+<script>
+  requireAuth(); renderTopbarUser();
+  let hardware = [];
+  async function load() {
+    try {
+      hardware = await apiGet('/hardware');
+      render(hardware);
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('hw-table').style.display = '';
+      document.getElementById('hw-count').textContent = `Hardware (${hardware.length})`;
+    } catch(e) { toast('Failed: ' + e.message, 'error'); }
+  }
+  function render(data) {
+    const isV = isViewer();
+    const isA = isAdmin();
+    const isSA = isServerAdmin();
+
+    const addBtn = document.getElementById('add-hw-btn');
+    if (addBtn) addBtn.style.display = isV ? 'none' : '';
+
+    const today = new Date();
+    document.getElementById('hw-body').innerHTML = data.map(h => {
+      const warExp = h.warrantyExpiry ? new Date(h.warrantyExpiry) : null;
+      const warBadge = !warExp ? '<span class="text-muted" style="font-size:11px">—</span>'
+        : warExp < today ? '<span class="badge badge-red">EXPIRED</span>'
+        : `<span style="font-size:12px">${formatDate(h.warrantyExpiry)}</span>`;
+
+      let actions = '<span class="text-muted" style="font-size:11px">Read only</span>';
+      if (isA) {
+        actions = `
+          <button class="btn btn-sm btn-secondary" onclick="edit(${h.id})">✏ Edit</button>
+          <button class="btn btn-sm btn-danger" onclick="del(${h.id})" style="margin-left:4px">🗑</button>
+        `;
+      } else if (isSA) {
+        actions = `<button class="btn btn-sm btn-secondary" onclick="edit(${h.id})">✏ Edit</button>`;
+      }
+
+      return `<tr>
+        <td><strong>${h.name}</strong></td>
+        <td><span class="badge badge-blue">${(h.hardwareType || '—').replace(/_/g,' ')}</span></td>
+        <td style="font-size:12px">${h.manufacturer || '—'}</td>
+        <td style="font-size:12px">${h.model || '—'}</td>
+        <td>${statusBadge(h.status)}</td>
+        <td class="text-mono" style="font-size:11px">${h.assetTag || '—'}</td>
+        <td>${warBadge}</td>
+        <td>${actions}</td>
+      </tr>`;
+    }).join('');
+  }
+  function openAdd() {
+    document.getElementById('modal-title').textContent = 'Add Hardware';
+    document.getElementById('hw-id').value = '';
+    ['name','mfr','model','tag','location','warranty'].forEach(f => document.getElementById('f-'+f).value = '');
+    document.getElementById('modal').classList.add('open');
+  }
+  function edit(id) {
+    const h = hardware.find(x => x.id === id); if (!h) return;
+    document.getElementById('modal-title').textContent = 'Edit Hardware';
+    document.getElementById('hw-id').value = h.id;
+    document.getElementById('f-name').value = h.name;
+    document.getElementById('f-type').value = h.hardwareType || 'OTHER';
+    document.getElementById('f-mfr').value = h.manufacturer || '';
+    document.getElementById('f-model').value = h.model || '';
+    document.getElementById('f-status').value = h.status;
+    document.getElementById('f-tag').value = h.assetTag || '';
+    document.getElementById('f-location').value = h.location || '';
+    document.getElementById('f-warranty').value = h.warrantyExpiry || '';
+    document.getElementById('modal').classList.add('open');
+  }
+  async function save() {
+    const id = document.getElementById('hw-id').value;
+    const body = {
+      name: document.getElementById('f-name').value,
+      hardwareType: document.getElementById('f-type').value,
+      manufacturer: document.getElementById('f-mfr').value,
+      model: document.getElementById('f-model').value,
+      status: document.getElementById('f-status').value,
+      assetTag: document.getElementById('f-tag').value || null,
+      location: document.getElementById('f-location').value,
+      warrantyExpiry: document.getElementById('f-warranty').value || null
+    };
+    try {
+      if (id) await apiPut('/hardware/' + id, body);
+      else await apiPost('/hardware', body);
+      toast(id ? 'Updated!' : 'Added!', 'success');
+      closeModal(); load();
+    } catch(e) { toast('Error: ' + e.message, 'error'); }
+  }
+  async function del(id) {
+    if (!confirm('Delete this hardware?')) return;
+    try { await apiDelete('/hardware/' + id); toast('Deleted', 'success'); load(); }
+    catch(e) { toast('Error: ' + e.message, 'error'); }
+  }
+  function closeModal() { document.getElementById('modal').classList.remove('open'); }
+  load();
+</script>
+</body>
+</html>

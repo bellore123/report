@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>College E - Central Region | Bhopal</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Segoe UI',sans-serif; background:#0f172a; color:#e2e8f0; min-height:100vh; }
+
+    /* HIGH-RISK warning strip at top */
+    .risk-strip { background:linear-gradient(135deg,#7f1d1d,#991b1b);padding:8px 40px;text-align:center;font-size:12px;font-weight:700;color:#fecaca;display:flex;align-items:center;justify-content:center;gap:10px; }
+    .risk-strip .blink { animation:blink 1s step-end infinite; }
+    @keyframes blink { 0%,100%{opacity:1}50%{opacity:0} }
+
+    header { background:linear-gradient(135deg,#1f0a0a,#1a0a2e);border-bottom:3px solid #dc2626;padding:0 40px; }
+    .header-inner { max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:70px; }
+    .logo { display:flex;align-items:center;gap:14px; }
+    .logo-icon { width:46px;height:46px;background:linear-gradient(135deg,#dc2626,#991b1b);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px; }
+    .logo-text h1 { font-size:18px;font-weight:800;color:#fff; }
+    .logo-text span { font-size:11px;color:#fca5a5; }
+    nav a { color:#fca5a5;text-decoration:none;margin-left:24px;font-size:13px;font-weight:500; }
+    nav a:hover { color:#fff; }
+    .status-badge { background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.5);color:#ef4444;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;display:flex;align-items:center;gap:6px; }
+    .pulse { width:6px;height:6px;border-radius:50%;background:#ef4444;animation:pulse 1s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.2} }
+
+    /* Hero */
+    .hero { background:linear-gradient(180deg,#1f0a0a 0%,#0f172a 100%);padding:50px 40px;text-align:center; }
+    .hero h2 { font-size:34px;font-weight:800;color:#fff;margin-bottom:10px; }
+    .hero h2 span { color:#ef4444; }
+    .hero p { font-size:15px;color:#94a3b8;max-width:600px;margin:0 auto 28px; }
+    .hero-badges { display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:32px; }
+    .badge { padding:6px 16px;border-radius:20px;font-size:12px;font-weight:600; }
+    .badge-red { background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.5);color:#fca5a5; }
+    .badge-orange { background:rgba(249,115,22,0.15);border:1px solid rgba(249,115,22,0.4);color:#fb923c; }
+    .badge-blue { background:rgba(37,99,235,0.2);border:1px solid rgba(37,99,235,0.5);color:#93c5fd; }
+    .badge-yellow { background:rgba(234,179,8,0.15);border:1px solid rgba(234,179,8,0.4);color:#fbbf24; }
+
+    .stats-row { display:flex;gap:24px;justify-content:center;margin-bottom:36px;flex-wrap:wrap; }
+    .stat { text-align:center; }
+    .stat-val { font-size:30px;font-weight:800;color:#ef4444; }
+    .stat-lbl { font-size:11px;color:#64748b;margin-top:2px; }
+
+    .quick-links { display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;max-width:900px;margin:0 auto; }
+    .quick-card { background:#1e293b;border:1px solid #334155;border-radius:12px;padding:22px;text-align:center;text-decoration:none;color:#e2e8f0;transition:all 0.2s;cursor:pointer; }
+    .quick-card:hover { border-color:#dc2626;background:#1f0a0a;transform:translateY(-2px); }
+    .quick-card .icon { font-size:30px;margin-bottom:10px; }
+    .quick-card h3 { font-size:13px;font-weight:700;margin-bottom:5px; }
+    .quick-card p { font-size:11px;color:#64748b; }
+
+    /* Threat Status Panel */
+    .section { max-width:1200px;margin:0 auto;padding:32px 40px; }
+    .section-title { font-size:18px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px; }
+    .threat-grid { display:grid;grid-template-columns:2fr 1fr;gap:20px; }
+    .announce-list { background:#1e293b;border:1px solid #334155;border-radius:12px;overflow:hidden; }
+    .announce-item { padding:14px 18px;border-bottom:1px solid #1e293b; }
+    .announce-item:last-child { border-bottom:none; }
+    .announce-tag { font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;margin-right:8px; }
+    .tag-exam { background:rgba(239,68,68,0.15);color:#ef4444; }
+    .tag-risk { background:rgba(249,115,22,0.15);color:#fb923c; }
+    .tag-notice { background:rgba(37,99,235,0.15);color:#60a5fa; }
+    .announce-title { font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:3px; }
+    .announce-date { font-size:11px;color:#64748b; }
+
+    .threat-card { background:#1f0a0a;border:2px solid rgba(239,68,68,0.4);border-radius:12px;padding:20px; }
+    .threat-card h4 { font-size:13px;font-weight:700;color:#dc2626;margin-bottom:14px;display:flex;align-items:center;gap:6px; }
+    .threat-row { display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #2d1010; }
+    .threat-row:last-child { border-bottom:none; }
+    .threat-row .label { color:#94a3b8; }
+    .threat-row .val { font-family:monospace;font-weight:600; }
+
+    footer { background:#0a0a0a;border-top:1px solid #1e293b;padding:20px 40px;text-align:center;font-size:11px;color:#475569;margin-top:32px; }
+    footer span.red { color:#dc2626; }
+  </style>
+</head>
+<body>
+
+<!-- HIGH RISK Strip -->
+<div class="risk-strip">
+  <span class="blink">🔴</span>
+  SECURITY STATUS: HIGH RISK — This institution is under active monitoring by CyberShield NEDI SOC
+  <span class="blink">🔴</span>
+</div>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">🎓</div>
+      <div class="logo-text">
+        <h1>College E – Central Region</h1>
+        <span>Bhopal, Madhya Pradesh · Est. 1994</span>
+      </div>
+    </div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="login.html">Student Login</a>
+      <a href="exam.html">Exam Portal</a>
+      <a href="faculty.html">Faculty</a>
+      <a href="erp.html">Admin/ERP</a>
+    </nav>
+    <div class="status-badge">
+      <span class="pulse"></span> HIGH RISK
+    </div>
+  </div>
+</header>
+
+<!-- Hero -->
+<div class="hero">
+  <h2>College E – <span>Central Region</span></h2>
+  <p>Serving 5,300+ students in Arts, Science & Commerce. Bhopal's growing academic institution — currently flagged HIGH RISK by the NEDI SOC due to exam portal vulnerabilities.</p>
+  <div class="hero-badges">
+    <span class="badge badge-red">🔴 SOC Status: HIGH RISK</span>
+    <span class="badge badge-orange">⚠️ Exam Server Unpatched 120 Days</span>
+    <span class="badge badge-blue">📍 Bhopal, Madhya Pradesh</span>
+    <span class="badge badge-yellow">🏛️ NAAC B++ Accredited</span>
+  </div>
+  <div class="stats-row">
+    <div class="stat"><div class="stat-val">5,300+</div><div class="stat-lbl">Students</div></div>
+    <div class="stat"><div class="stat-val">210</div><div class="stat-lbl">Faculty</div></div>
+    <div class="stat"><div class="stat-val">32 yrs</div><div class="stat-lbl">Experience</div></div>
+    <div class="stat"><div class="stat-val">7</div><div class="stat-lbl">Services Monitored</div></div>
+  </div>
+  <div class="quick-links">
+    <a class="quick-card" href="login.html">
+      <div class="icon">🔑</div>
+      <h3>Student Login</h3>
+      <p>Access marks, attendance and fee details</p>
+    </a>
+    <a class="quick-card" href="exam.html">
+      <div class="icon">📝</div>
+      <h3>Exam Portal</h3>
+      <p>Hall tickets and results — shared exam server (UNPATCHED)</p>
+    </a>
+    <a class="quick-card" href="faculty.html">
+      <div class="icon">👨‍🏫</div>
+      <h3>Faculty Portal</h3>
+      <p>Staff login, mark entry and reports</p>
+    </a>
+    <a class="quick-card" href="erp.html">
+      <div class="icon">🏢</div>
+      <h3>ERP / Admin</h3>
+      <p>Administration and institutional ERP system</p>
+    </a>
+  </div>
+</div>
+
+<!-- Content -->
+<div class="section">
+  <div class="section-title">📢 Announcements & Security Notices</div>
+  <div class="threat-grid">
+    <div class="announce-list">
+      <div class="announce-item">
+        <span class="announce-tag tag-risk">SOC ALERT</span>
+        <div class="announce-title">CyberShield has flagged Exam Portal as HIGH RISK — Patch Pending</div>
+        <div class="announce-date">September 21, 2026 · NEDI Security Operations Center</div>
+      </div>
+      <div class="announce-item">
+        <span class="announce-tag tag-exam">EXAM</span>
+        <div class="announce-title">Semester III Hall Tickets Available — Download Now</div>
+        <div class="announce-date">September 19, 2026 · Examination Cell</div>
+      </div>
+      <div class="announce-item">
+        <span class="announce-tag tag-notice">NOTICE</span>
+        <div class="announce-title">Last Date for Fee Payment — September 30, 2026</div>
+        <div class="announce-date">September 15, 2026 · Accounts Office</div>
+      </div>
+      <div class="announce-item">
+        <span class="announce-tag tag-risk">SECURITY</span>
+        <div class="announce-title">IT Team: Emergency Maintenance Scheduled — Exam Server Patching</div>
+        <div class="announce-date">September 14, 2026 · IT Department</div>
+      </div>
+      <div class="announce-item">
+        <span class="announce-tag tag-notice">NOTICE</span>
+        <div class="announce-title">Admission Portal Open for 2026-27 Batch</div>
+        <div class="announce-date">September 10, 2026 · Admissions Office</div>
+      </div>
+    </div>
+    <div>
+      <div class="threat-card">
+        <h4>🛡️ Live SOC Threat Status</h4>
+        <div class="threat-row">
+          <span class="label">Institution Code</span>
+          <span class="val" style="color:#fca5a5;">COL-E-CENTRAL</span>
+        </div>
+        <div class="threat-row">
+          <span class="label">SOC Status</span>
+          <span class="val" style="color:#ef4444;">HIGH RISK</span>
+        </div>
+        <div class="threat-row">
+          <span class="label">Exam Server</span>
+          <span class="val">10.0.1.11</span>
+        </div>
+        <div class="threat-row">
+          <span class="label">Patch Status</span>
+          <span class="val" style="color:#f97316;">OVERDUE 120d</span>
+        </div>
+        <div class="threat-row">
+          <span class="label">ERP Server</span>
+          <span class="val">10.0.1.14</span>
+        </div>
+        <div class="threat-row">
+          <span class="label">Services</span>
+          <span class="val">7 Monitored</span>
+        </div>
+        <div style="margin-top:12px;font-size:10px;color:#64748b;text-align:center;">
+          🛡️ Protected by CyberShield NEDI SOC<br>
+          <a href="http://localhost:8081/dashboard.html" target="_blank" style="color:#dc2626;">View SOC Dashboard →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <span>© 2026 College E – Central Region, Bhopal, Madhya Pradesh.</span>
+  All services monitored by <span class="red">CyberShield NEDI SOC</span> ·
+  Status: <span class="red">HIGH RISK</span> ·
+  Exam Server: <span style="font-family:monospace;color:#475569;">NEDI-EXAM-APP-01 (10.0.1.11)</span>
+</footer>
+
+<script src="college-beacon.js"></script>
+<script>
+  autoBeacon('COL-E-CENTRAL', 'College E - Central Region', 'index', 'PAGE_ACCESS');
+</script>
+</body>
+</html>

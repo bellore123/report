@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Faculty Portal | College A – South Campus</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Segoe UI',sans-serif; background:#0f172a; color:#e2e8f0; min-height:100vh; }
+    header { background:#0f2744; border-bottom:3px solid #059669; padding:0 40px; }
+    .header-inner { max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:64px; }
+    .logo { display:flex;align-items:center;gap:10px;text-decoration:none;color:#fff; }
+    .logo-icon { width:38px;height:38px;background:#059669;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px; }
+    .logo h1 { font-size:15px;font-weight:700; }
+    nav a { color:#6ee7b7;text-decoration:none;margin-left:20px;font-size:13px; }
+
+    .page { display:flex;align-items:center;justify-content:center;padding:50px 20px;min-height:calc(100vh - 130px); }
+    .login-wrap { display:grid;grid-template-columns:1fr 1fr;gap:40px;max-width:900px;width:100%;align-items:start; }
+
+    .info-panel h2 { font-size:26px;font-weight:800;color:#fff;margin-bottom:12px; }
+    .info-panel h2 span { color:#10b981; }
+    .info-panel p { color:#94a3b8;font-size:13px;line-height:1.7;margin-bottom:20px; }
+    .quick-actions { display:grid;gap:10px; }
+    .qa-item { background:#1e293b;border:1px solid #334155;border-radius:8px;padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:background 0.2s;text-decoration:none;color:#e2e8f0; }
+    .qa-item:hover { background:#0f2744;border-color:#059669; }
+    .qa-icon { font-size:20px; }
+    .qa-text h4 { font-size:13px;font-weight:600; }
+    .qa-text p { font-size:11px;color:#64748b; }
+
+    .server-info { background:#1e293b;border:1px solid #334155;border-radius:8px;padding:14px;font-size:12px;margin-top:16px; }
+    .server-info-title { color:#10b981;font-weight:700;margin-bottom:8px;font-size:11px; }
+    .server-row { display:flex;justify-content:space-between;color:#94a3b8;margin-bottom:4px; }
+    .server-row span:last-child { color:#e2e8f0;font-family:monospace; }
+
+    .login-card { background:#1e293b;border:1px solid #334155;border-radius:14px;padding:36px; }
+    .login-card h3 { font-size:18px;font-weight:700;margin-bottom:6px; }
+    .login-card .sub { font-size:12px;color:#64748b;margin-bottom:24px; }
+    .form-group { margin-bottom:16px; }
+    label { font-size:12px;font-weight:600;color:#94a3b8;display:block;margin-bottom:6px; }
+    input, select { width:100%;background:#0f172a;border:1px solid #334155;border-radius:8px;padding:11px 14px;color:#e2e8f0;font-size:13px;outline:none;transition:border-color 0.2s; }
+    input:focus, select:focus { border-color:#059669; }
+    .btn-login { width:100%;background:linear-gradient(135deg,#059669,#047857);color:#fff;border:none;border-radius:8px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;margin-top:6px; }
+    .btn-login:hover { opacity:0.9; }
+    #result-box { margin-top:16px;padding:12px 16px;border-radius:8px;font-size:13px;display:none; }
+    #result-box.success { background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.4);color:#10b981; }
+    #result-box.danger  { background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.4);color:#ef4444; }
+
+    footer { background:#0a1628;border-top:1px solid #1e293b;padding:16px 40px;text-align:center;font-size:11px;color:#475569; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a href="index.html" class="logo">
+      <div class="logo-icon">👨‍🏫</div>
+      <div>
+        <h1>College A — Faculty Portal</h1>
+        <span style="font-size:10px;color:#6ee7b7;">Staff Services · Chennai Campus</span>
+      </div>
+    </a>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="login.html">Student Login</a>
+      <a href="exam.html">Exam Portal</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page">
+  <div class="login-wrap">
+
+    <div class="info-panel">
+      <h2>Faculty <span>Staff Portal</span></h2>
+      <p>Access mark entry, attendance management, department reports, student profiles, and institutional resources.</p>
+
+      <div class="quick-actions">
+        <div class="qa-item" onclick="triggerFacultyAction('marks')">
+          <span class="qa-icon">📊</span>
+          <div class="qa-text"><h4>Mark Entry</h4><p>Internal assessment and exam marks</p></div>
+        </div>
+        <div class="qa-item" onclick="triggerFacultyAction('attendance')">
+          <span class="qa-icon">📋</span>
+          <div class="qa-text"><h4>Attendance Entry</h4><p>Upload class-wise attendance records</p></div>
+        </div>
+        <div class="qa-item" onclick="triggerFacultyAction('reports')">
+          <span class="qa-icon">📁</span>
+          <div class="qa-text"><h4>Department Reports</h4><p>Generate and download reports</p></div>
+        </div>
+      </div>
+
+      <div class="server-info">
+        <div class="server-info-title">🖥️ Faculty Server (SOC Visible)</div>
+        <div class="server-row"><span>Server</span><span>NEDI-FACULTY-WEB-01</span></div>
+        <div class="server-row"><span>IP Address</span><span>10.0.1.13</span></div>
+        <div class="server-row"><span>OS</span><span>Ubuntu 22.04 LTS</span></div>
+        <div class="server-row"><span>Status</span><span style="color:#10b981;">✅ RUNNING</span></div>
+        <div style="margin-top:8px;font-size:10px;color:#475569;">Monitored by CyberShield NEDI SOC</div>
+      </div>
+    </div>
+
+    <div class="login-card">
+      <h3>👨‍🏫 Faculty Login</h3>
+      <p class="sub">Use your Employee ID and institutional email password</p>
+
+      <form onsubmit="handleFacultyLogin(event)">
+        <div class="form-group">
+          <label>Employee ID</label>
+          <input type="text" id="emp-id" placeholder="e.g. FAC-2019-0087">
+        </div>
+        <div class="form-group">
+          <label>Department</label>
+          <select id="department">
+            <option>Computer Science & Engineering</option>
+            <option>Electronics & Communication</option>
+            <option>Mechanical Engineering</option>
+            <option>Civil Engineering</option>
+            <option>Information Technology</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="fac-password" placeholder="••••••••">
+        </div>
+        <button type="submit" class="btn-login">Access Faculty Portal →</button>
+        <div id="result-box"></div>
+      </form>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  College A – South Campus · Faculty Server: NEDI-FACULTY-WEB-01 (10.0.1.13) · Protected by CyberShield NEDI SOC
+</footer>
+
+<script src="college-beacon.js"></script>
+<script>
+  autoBeacon('COL-A-SOUTH', 'College A - South Campus', 'faculty', 'FACULTY_ACCESS');
+
+  async function handleFacultyLogin(e) {
+    e.preventDefault();
+    const empId = document.getElementById('emp-id').value;
+    const pass  = document.getElementById('fac-password').value;
+    const box   = document.getElementById('result-box');
+
+    const result = await formBeacon('COL-A-SOUTH', 'College A - South Campus', 'faculty', empId, pass);
+    if (result) showDetectionToast(result);
+
+    box.style.display = 'block';
+    if (result && result.riskScore >= 60) {
+      box.className = 'danger';
+      box.innerHTML = `🚫 <b>Security Alert:</b> ${result.eventType} detected. Score: ${result.riskScore}/100. Incident logged.`;
+    } else {
+      box.className = 'success';
+      box.textContent = '✅ Faculty credentials verified. Loading portal...';
+    }
+  }
+
+  async function triggerFacultyAction(action) {
+    const result = await sendBeacon({
+      institutionCode: 'COL-A-SOUTH',
+      collegeName: 'College A - South Campus',
+      page: 'faculty',
+      eventType: 'FACULTY_ACCESS',
+      inputPayload: action,
+      attackerIp: 'auto-detected'
+    });
+    if (result) showDetectionToast(result);
+    alert(`Faculty ${action} service accessed. CyberShield has logged this event.`);
+  }
+</script>
+</body>
+</html>

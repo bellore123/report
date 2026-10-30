@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Faculty Portal | College E – Central Region</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Segoe UI',sans-serif; background:#0f172a; color:#e2e8f0; min-height:100vh; display:flex; flex-direction:column; }
+    .risk-strip { background:#7f1d1d;padding:7px 40px;text-align:center;font-size:11px;font-weight:700;color:#fecaca; }
+    header { background:#1f0a0a;border-bottom:3px solid #059669;padding:0 40px; }
+    .header-inner { max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:64px; }
+    .logo { display:flex;align-items:center;gap:10px;text-decoration:none;color:#fff; }
+    .logo-icon { width:38px;height:38px;background:#059669;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px; }
+    .logo h1 { font-size:15px;font-weight:700; }
+    nav a { color:#6ee7b7;text-decoration:none;margin-left:20px;font-size:13px; }
+
+    .page { flex:1;display:flex;align-items:center;justify-content:center;padding:36px 20px; }
+    .login-wrap { display:grid;grid-template-columns:1fr 1fr;gap:40px;max-width:900px;width:100%;align-items:start; }
+
+    .info-panel h2 { font-size:24px;font-weight:800;color:#fff;margin-bottom:12px; }
+    .info-panel h2 span { color:#10b981; }
+    .info-panel p { color:#94a3b8;font-size:13px;line-height:1.7;margin-bottom:16px; }
+
+    .quick-actions { display:grid;gap:9px;margin-bottom:16px; }
+    .qa-item { background:#1e293b;border:1px solid #334155;border-radius:8px;padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:background 0.2s; }
+    .qa-item:hover { background:#0f172a;border-color:#059669; }
+    .qa-icon { font-size:18px; }
+    .qa-text h4 { font-size:12px;font-weight:600; }
+    .qa-text p { font-size:10px;color:#64748b; }
+
+    .server-info { background:#1e293b;border:1px solid #334155;border-radius:8px;padding:14px;font-size:12px; }
+    .server-info-title { color:#10b981;font-weight:700;margin-bottom:8px;font-size:11px; }
+    .server-row { display:flex;justify-content:space-between;color:#94a3b8;margin-bottom:4px; }
+    .server-row span:last-child { color:#e2e8f0;font-family:monospace; }
+
+    .login-card { background:#1e293b;border:1px solid #334155;border-radius:14px;padding:34px; }
+    .login-card h3 { font-size:17px;font-weight:700;margin-bottom:6px; }
+    .login-card .sub { font-size:12px;color:#64748b;margin-bottom:22px; }
+    .form-group { margin-bottom:15px; }
+    label { font-size:12px;font-weight:600;color:#94a3b8;display:block;margin-bottom:6px; }
+    input, select { width:100%;background:#0f172a;border:1px solid #334155;border-radius:8px;padding:11px 14px;color:#e2e8f0;font-size:13px;outline:none;transition:border-color 0.2s; }
+    input:focus, select:focus { border-color:#059669; }
+    .btn-login { width:100%;background:linear-gradient(135deg,#059669,#047857);color:#fff;border:none;border-radius:8px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;margin-top:4px; }
+    #result-box { margin-top:13px;padding:12px;border-radius:8px;font-size:12px;display:none; }
+    #result-box.success { background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.4);color:#10b981; }
+    #result-box.danger  { background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.4);color:#ef4444; }
+
+    footer { background:#0a0a0a;border-top:1px solid #1e293b;padding:14px 40px;text-align:center;font-size:11px;color:#475569; }
+  </style>
+</head>
+<body>
+
+<div class="risk-strip">🔴 HIGH RISK INSTITUTION — College E Faculty portal monitored by CyberShield NEDI SOC</div>
+
+<header>
+  <div class="header-inner">
+    <a href="index.html" class="logo">
+      <div class="logo-icon">👨‍🏫</div>
+      <div>
+        <h1>College E — Faculty Portal</h1>
+        <span style="font-size:10px;color:#6ee7b7;">Staff Services · Bhopal Campus</span>
+      </div>
+    </a>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="login.html">Student Login</a>
+      <a href="exam.html">Exam Portal</a>
+      <a href="erp.html">Admin/ERP</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page">
+  <div class="login-wrap">
+
+    <div class="info-panel">
+      <h2>Faculty <span>Staff Portal</span></h2>
+      <p>Manage mark entry, attendance, department reports, and institutional documents. Your access is monitored by the NEDI Security Operations Center.</p>
+
+      <div class="quick-actions">
+        <div class="qa-item" onclick="triggerAction('marks')">
+          <span class="qa-icon">📊</span>
+          <div class="qa-text"><h4>Internal Mark Entry</h4><p>Upload internal assessment scores</p></div>
+        </div>
+        <div class="qa-item" onclick="triggerAction('attendance')">
+          <span class="qa-icon">📋</span>
+          <div class="qa-text"><h4>Attendance Management</h4><p>Update class attendance records</p></div>
+        </div>
+        <div class="qa-item" onclick="triggerAction('syllabus')">
+          <span class="qa-icon">📚</span>
+          <div class="qa-text"><h4>Syllabus & Course Materials</h4><p>Upload lecture notes and resources</p></div>
+        </div>
+        <div class="qa-item" onclick="triggerAction('reports')">
+          <span class="qa-icon">📁</span>
+          <div class="qa-text"><h4>Department Reports</h4><p>Generate NAAC and audit reports</p></div>
+        </div>
+      </div>
+
+      <div class="server-info">
+        <div class="server-info-title">🖥️ Faculty Server (SOC Visible)</div>
+        <div class="server-row"><span>Server</span><span>NEDI-FACULTY-WEB-01</span></div>
+        <div class="server-row"><span>IP Address</span><span>10.0.1.13</span></div>
+        <div class="server-row"><span>OS</span><span>Ubuntu 22.04 LTS</span></div>
+        <div class="server-row"><span>Status</span><span style="color:#10b981;">✅ RUNNING</span></div>
+        <div class="server-row"><span>Institution</span><span style="color:#ef4444;">COL-E-CENTRAL ⚠️</span></div>
+        <div style="margin-top:8px;font-size:10px;color:#475569;">All faculty logins monitored by CyberShield NEDI SOC</div>
+      </div>
+    </div>
+
+    <div class="login-card">
+      <h3>👨‍🏫 Faculty Login</h3>
+      <p class="sub">Use your Employee ID and institutional password</p>
+
+      <form onsubmit="handleFacultyLogin(event)">
+        <div class="form-group">
+          <label>Employee ID</label>
+          <input type="text" id="emp-id" placeholder="e.g. COLE-FAC-2020-042">
+        </div>
+        <div class="form-group">
+          <label>Department</label>
+          <select id="dept">
+            <option>Arts & Humanities</option>
+            <option>Science & Technology</option>
+            <option>Commerce & Management</option>
+            <option>Computer Applications</option>
+            <option>Physical Education</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="fac-pass" placeholder="••••••••">
+        </div>
+        <button type="submit" class="btn-login">Access Faculty Portal →</button>
+        <div id="result-box"></div>
+      </form>
+
+      <div style="margin-top:14px;font-size:10px;color:#475569;text-align:center;border-top:1px solid #1e293b;padding-top:12px;">
+        🛡️ This login is monitored in real time by CyberShield NEDI SOC.<br>
+        Suspicious activity → instant risk alert on <a href="http://localhost:8081/dashboard.html" target="_blank" style="color:#10b981;">SOC Dashboard</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  College E – Central Region · Faculty Server: NEDI-FACULTY-WEB-01 (10.0.1.13) · Status: HIGH RISK · Protected by CyberShield NEDI SOC
+</footer>
+
+<script src="college-beacon.js"></script>
+<script>
+  autoBeacon('COL-E-CENTRAL', 'College E - Central Region', 'faculty', 'FACULTY_ACCESS');
+
+  async function handleFacultyLogin(e) {
+    e.preventDefault();
+    const empId = document.getElementById('emp-id').value;
+    const pass  = document.getElementById('fac-pass').value;
+    const box   = document.getElementById('result-box');
+    const result = await formBeacon('COL-E-CENTRAL', 'College E - Central Region', 'faculty', empId, pass);
+    if (result) showDetectionToast(result);
+    box.style.display = 'block';
+    if (result && result.riskScore >= 60) {
+      box.className = 'danger';
+      box.innerHTML = `🚫 <b>Security Alert:</b> ${result.eventType} detected. Score: ${result.riskScore}/100.${result.incidentCreated ? ` Incident <a href="http://localhost:8081/incidents.html" target="_blank" style="color:#ef4444;">#${result.incidentId}</a> created.` : ''}`;
+    } else {
+      box.className = 'success';
+      box.textContent = '✅ Credentials verified. Loading faculty portal...';
+    }
+  }
+
+  async function triggerAction(action) {
+    const result = await sendBeacon({
+      institutionCode:'COL-E-CENTRAL', collegeName:'College E - Central Region',
+      page:'faculty', eventType:'FACULTY_ACCESS', inputPayload:action, attackerIp:'auto-detected'
+    });
+    if (result) showDetectionToast(result);
+    alert(`Faculty service "${action}" accessed. CyberShield has logged this event.`);
+  }
+</script>
+</body>
+</html>

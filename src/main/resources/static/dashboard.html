@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEDI SOC Command Center - CyberShield Nexus</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<!-- ── Sidebar ── -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <h1>CyberShield Nexus</h1>
+    <span>NEDI AI Cyber Command</span>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Operations</div>
+    <a href="/dashboard.html" class="nav-item active" id="nav-dashboard">
+      <span class="icon">📊</span> SOC Dashboard
+    </a>
+    <div class="nav-section-label">Managed Assets</div>
+    <a href="/servers.html" class="nav-item" id="nav-servers">
+      <span class="icon">🖥️</span> Servers
+    </a>
+    <a href="/firewalls.html" class="nav-item" id="nav-firewalls">
+      <span class="icon">🔥</span> Firewalls
+    </a>
+    <a href="/loadbalancers.html" class="nav-item" id="nav-loadbalancers">
+      <span class="icon">⚖️</span> Load Balancers
+    </a>
+    <a href="/licenses.html" class="nav-item" id="nav-licenses">
+      <span class="icon">📋</span> Licenses
+    </a>
+    <a href="/hardware.html" class="nav-item" id="nav-hardware">
+      <span class="icon">⚙️</span> Hardware
+    </a>
+    <div class="nav-section-label">Cyber Defense</div>
+    <a href="/incidents.html" class="nav-item" id="nav-incidents">
+      <span class="icon">🚨</span> Incidents
+      <span class="nav-badge" id="incident-badge" style="display:none">0</span>
+    </a>
+    <a href="/risk.html" class="nav-item" id="nav-risk">
+      <span class="icon">📈</span> Risk & Attack Path
+    </a>
+    <a href="/audit-log.html" class="nav-item" id="nav-audit">
+      <span class="icon">📜</span> Audit Log
+    </a>
+    <a href="/users.html" class="nav-item" id="nav-users">
+      <span class="icon">👤</span> Users & Roles
+    </a>
+    <div class="nav-section-label">Tools</div>
+    <a href="/phishing-detector.html" class="nav-item" id="nav-phishing">
+      <span class="icon">🎣</span> Phishing Detector
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <button onclick="logout()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:12px;">⏏ Sign Out</button>
+  </div>
+</aside>
+
+<!-- ── Topbar ── -->
+<header class="topbar">
+  <div style="display:flex;align-items:center;gap:14px;">
+    <span class="topbar-title">NEDI Cyber Command Operations Center</span>
+    <span class="spotlight-badge" style="background:rgba(16,185,129,0.15);border-color:rgba(16,185,129,0.4);color:var(--accent-green);">
+      <span class="pulse-dot pulse-green"></span> TELEMETRY ACTIVE
+    </span>
+  </div>
+  <div class="topbar-right">
+    <div class="topbar-user">
+      <div class="user-avatar" id="topbar-avatar">A</div>
+      <div>
+        <div style="font-weight:600;font-size:13px" id="topbar-username">admin</div>
+        <div style="font-size:10px;color:var(--text-muted)" id="topbar-role">ADMIN</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ── Main Content ── -->
+<main class="main-content">
+
+  <!-- Loading -->
+  <div id="loading"><div class="spinner"></div></div>
+
+  <div id="content" style="display:none">
+
+    <!-- Alert Banner -->
+    <div id="alert-banner" class="alert alert-warning mb-6" style="display:none">
+      ⚠️ <span id="alert-text"></span>
+    </div>
+
+    <!-- ── NEDI High-Level Mission Stats ── -->
+    <div class="stat-grid" id="nedi-stat-grid" style="grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));">
+      <div class="stat-card blue">
+        <div class="stat-icon">🏛️</div>
+        <div class="stat-label">Institutions Covered</div>
+        <div class="stat-value" id="stat-institutions">500+</div>
+        <div class="stat-sub" id="stat-institutions-sub">6 representative units in demo</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-icon">🌐</div>
+        <div class="stat-label">Digital Services</div>
+        <div class="stat-value" id="stat-services">8</div>
+        <div class="stat-sub" id="stat-services-sub">6 healthy · 1 degraded · 1 risky</div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-icon">🚨</div>
+        <div class="stat-label">High Risk Services</div>
+        <div class="stat-value" id="stat-high-risk-services" style="color:var(--accent-red)">1</div>
+        <div class="stat-sub">Exam Portal flagged</div>
+      </div>
+      <div class="stat-card orange">
+        <div class="stat-icon">⚠️</div>
+        <div class="stat-label">Open Incidents</div>
+        <div class="stat-value" id="stat-incidents">—</div>
+        <div class="stat-sub" id="stat-incidents-sub">require triage</div>
+      </div>
+      <div class="stat-card purple">
+        <div class="stat-icon">🛡️</div>
+        <div class="stat-label">Security Compliance</div>
+        <div class="stat-value" id="stat-compliance">80%</div>
+        <div class="stat-sub" id="stat-compliance-sub">NIST CSF 2.0 alignment</div>
+      </div>
+    </div>
+
+    <!-- ── Spotlight: Exam Portal Threat Alert Card (Phase 4 Highlight) ── -->
+    <div class="spotlight-card" id="spotlight-container">
+      <div class="spotlight-grid">
+        <div>
+          <div class="flex items-center gap-2 mb-2">
+            <span class="spotlight-badge"><span class="pulse-dot pulse-red"></span> CRITICAL THREAT SPOTLIGHT</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-muted)">service: exam.nedi.local</span>
+          </div>
+          <h2 style="font-size:20px;font-weight:800;color:#fee2e2;margin-bottom:8px;" id="spotlight-title">
+            Exam Portal Compromise Pathway Detected
+          </h2>
+          <p style="font-size:13px;color:var(--text-secondary);line-height:1.6;margin-bottom:14px;" id="spotlight-desc">
+            Abnormal authentication spikes against privileged accounts, combined with <strong>NEDI-EXAM-APP-01</strong> (unpatched 120 days) and <strong>NEDI-EXAM-DB-01</strong> (expired Oracle license) creates a critical zero-trust violation.
+          </p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
+            <span class="badge badge-red">Asset: NEDI-EXAM-APP-01 (10.0.1.11)</span>
+            <span class="badge badge-red">Asset: NEDI-EXAM-DB-01 (10.0.1.12)</span>
+            <span class="badge badge-yellow">Entry: NEDI-DMZ-FW-01</span>
+            <span class="badge badge-orange">License: Oracle 19c EXPIRED</span>
+          </div>
+          <div style="background:rgba(0,0,0,0.3);border-left:3px solid var(--accent);padding:10px 14px;border-radius:4px;font-size:12px;color:var(--text-primary);margin-bottom:16px;">
+            <strong>🤖 AI-Assisted Recommendation:</strong> <span id="spotlight-ai-rec">Apply pending OS patch batch on App Server, rotate 'serveradmin' credentials, renew Oracle compliance certificate, and sever lateral pivot from DMZ.</span>
+          </div>
+          <div class="flex gap-2">
+            <a href="/risk.html" class="btn btn-primary btn-sm">🔍 View Lateral Movement (BFS Map) →</a>
+            <a href="/incidents.html" class="btn btn-secondary btn-sm">🚨 Open Incident Response →</a>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
+          <div class="score-circle">
+            <div class="val" id="spotlight-score">92</div>
+            <div class="lbl">Risk Score</div>
+          </div>
+          <div style="font-size:12px;font-weight:700;color:var(--accent-red);margin-top:10px;">HIGH BUSINESS IMPACT</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">500+ Institutions Depend On This Service</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 8 Monitored NEDI Digital Services Grid ── -->
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h3 style="font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px;">
+          <span>🌐 Central NEDI Digital Services Landscape</span>
+          <span class="badge badge-blue">8 Monitored</span>
+        </h3>
+        <p style="font-size:12px;color:var(--text-muted);margin-top:2px;">Real-time health status, domain mapping, and criticality weighting across all education services</p>
+      </div>
+      <div style="display:flex;gap:6px;">
+        <span class="badge badge-green">Healthy: <b id="badge-healthy-count">6</b></span>
+        <span class="badge badge-yellow">Degraded: <b id="badge-degraded-count">1</b></span>
+        <span class="badge badge-red">High Risk: <b id="badge-risk-count">1</b></span>
+      </div>
+    </div>
+
+    <div class="services-grid" id="services-grid">
+      <!-- Injected by JavaScript -->
+    </div>
+
+    <!-- ── Representative Institutions Strip ── -->
+    <div class="card mb-6">
+      <div class="card-header">
+        <span class="card-title">🏛️ Representative Monitored Institutions Status</span>
+        <span style="font-size:11px;color:var(--text-muted)">National Education Infrastructure Monitoring Grid</span>
+      </div>
+      <div class="card-body" style="padding:14px 20px;">
+        <div id="institutions-list" style="display:flex;gap:12px;flex-wrap:wrap;">
+          <!-- Injected by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Asset Counts Strip ── -->
+    <div class="stat-grid mb-6">
+      <div class="stat-card blue">
+        <div class="stat-icon">🖥️</div>
+        <div class="stat-label">Total Servers</div>
+        <div class="stat-value" id="stat-servers">—</div>
+        <div class="stat-sub" id="stat-servers-sub"></div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-icon">🔥</div>
+        <div class="stat-label">Firewalls</div>
+        <div class="stat-value" id="stat-firewalls">—</div>
+        <div class="stat-sub" id="stat-firewalls-sub"></div>
+      </div>
+      <div class="stat-card yellow">
+        <div class="stat-icon">📋</div>
+        <div class="stat-label">Licenses</div>
+        <div class="stat-value" id="stat-licenses">—</div>
+        <div class="stat-sub" id="stat-licenses-sub"></div>
+      </div>
+      <div class="stat-card orange">
+        <div class="stat-icon">⚠️</div>
+        <div class="stat-label">Unpatched Servers</div>
+        <div class="stat-value" id="stat-unpatched">—</div>
+        <div class="stat-sub">&gt; 90 days overdue</div>
+      </div>
+      <div class="stat-card purple">
+        <div class="stat-icon">📈</div>
+        <div class="stat-label">High Risk Servers</div>
+        <div class="stat-value" id="stat-highrisk">—</div>
+        <div class="stat-sub">score ≥ 70</div>
+      </div>
+    </div>
+
+    <!-- ── Row: Open Incidents + Expiring Licenses ── -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
+
+      <!-- Open Incidents -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">🚨 Open Security Incidents</span>
+          <a href="/incidents.html" class="btn btn-sm btn-secondary">Manage Response →</a>
+        </div>
+        <div class="card-body" style="padding:0">
+          <div id="incidents-list">
+            <div style="padding:20px;text-align:center;color:var(--text-muted)">Loading...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- License Alerts -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">⚠️ Compliance & License Alerts</span>
+          <a href="/licenses.html" class="btn btn-sm btn-secondary">View All →</a>
+        </div>
+        <div class="card-body" style="padding:0">
+          <div id="license-alerts">
+            <div style="padding:20px;text-align:center;color:var(--text-muted)">Loading...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Row: Unpatched Servers + Recent Audit Log ── -->
+    <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:16px">
+
+      <!-- Unpatched Servers -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">🩹 Unpatched Infrastructure</span>
+          <a href="/servers.html" class="btn btn-sm btn-secondary">Inventory →</a>
+        </div>
+        <div class="card-body" style="padding:0">
+          <div id="unpatched-list">
+            <div style="padding:20px;text-align:center;color:var(--text-muted)">Loading...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Audit Log -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">📜 Security Audit Log Stream</span>
+          <a href="/audit-log.html" class="btn btn-sm btn-secondary">Full Audit Trail →</a>
+        </div>
+        <div class="card-body" style="padding:0">
+          <div id="audit-log-list">
+            <div style="padding:20px;text-align:center;color:var(--text-muted)">Loading...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── College Live Threat Monitor ── -->
+    <div style="margin-top:24px;margin-bottom:8px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div>
+          <h3 style="font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px;">
+            <span>🎓 College Live Threat Monitor</span>
+            <span class="spotlight-badge" style="background:rgba(16,185,129,0.15);border-color:rgba(16,185,129,0.4);color:var(--accent-green);">
+              <span class="pulse-dot pulse-green"></span> LIVE
+            </span>
+          </h3>
+          <p style="font-size:12px;color:var(--text-muted);margin-top:2px;">Real-time attack detection across College A (Chennai) and College E (Bhopal) — polling every 3s</p>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <span id="college-monitor-status" style="font-size:11px;color:var(--text-muted);">Waiting for beacons...</span>
+          <a href="http://localhost:8082" target="_blank" class="btn btn-sm btn-secondary">🔗 College A Site</a>
+          <a href="http://localhost:8083" target="_blank" class="btn btn-sm btn-secondary">🔗 College E Site</a>
+        </div>
+      </div>
+
+      <!-- College Cards Row -->
+      <div id="college-cards" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
+        <!-- Injected by JS -->
+      </div>
+
+      <!-- Live Event Feed Table -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">⚡ Live Attack Event Feed</span>
+          <span id="college-event-count" style="font-size:11px;color:var(--text-muted);">0 events</span>
+        </div>
+        <div class="card-body" style="padding:0;max-height:320px;overflow-y:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:12px;">
+            <thead style="position:sticky;top:0;background:var(--bg-card);">
+              <tr style="border-bottom:1px solid var(--border);">
+                <th style="padding:8px 12px;text-align:left;color:var(--text-muted);font-weight:600;">Time</th>
+                <th style="padding:8px 12px;text-align:left;color:var(--text-muted);font-weight:600;">College</th>
+                <th style="padding:8px 12px;text-align:left;color:var(--text-muted);font-weight:600;">Page</th>
+                <th style="padding:8px 12px;text-align:left;color:var(--text-muted);font-weight:600;">Attack Pattern</th>
+                <th style="padding:8px 12px;text-align:left;color:var(--text-muted);font-weight:600;">Server</th>
+                <th style="padding:8px 12px;text-align:left;color:var(--text-muted);font-weight:600;">Risk</th>
+                <th style="padding:8px 12px;text-align:left;color:var(--text-muted);font-weight:600;">Incident</th>
+              </tr>
+            </thead>
+            <tbody id="college-event-tbody">
+              <tr><td colspan="7" style="padding:20px;text-align:center;color:var(--text-muted);">
+                Waiting for college site events... Visit <b>localhost:8082</b> or <b>localhost:8083</b> to trigger.
+              </td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- Toast container -->
+<div id="toast-container"></div>
+
+<script src="/js/auth.js"></script>
+<script>
+  requireAuth();
+  renderTopbarUser();
+
+  const serviceIconMap = {
+    'STUDENT_PORTAL': '🎓',
+    'FACULTY_PORTAL': '👨‍🏫',
+    'EXAM_PORTAL':    '📝',
+    'ERP':             '🏢',
+    'ADMISSION_PORTAL':'📄',
+    'DIGITAL_LIBRARY': '📚',
+    'LMS':             '💻',
+    'MAIL_SERVICE':    '✉️'
+  };
+
+  const serviceServerMap = {
+    'STUDENT_PORTAL': 'NEDI-STUDENT-WEB-01',
+    'FACULTY_PORTAL': 'NEDI-FACULTY-WEB-01',
+    'EXAM_PORTAL':    'NEDI-EXAM-APP-01 / DB-01',
+    'ERP':             'NEDI-ERP-APP-01',
+    'ADMISSION_PORTAL':'NEDI-STUDENT-WEB-01',
+    'DIGITAL_LIBRARY': 'NEDI-FACULTY-WEB-01',
+    'LMS':             'NEDI-STUDENT-WEB-01',
+    'MAIL_SERVICE':    'NEDI-CORE-FW-01'
+  };
+
+  async function loadDashboard() {
+    try {
+      const dash = await apiGet('/dashboard');
+
+      // Mission & NEDI stats
+      const c = dash.counts || {};
+      document.getElementById('stat-institutions').textContent = `${c.representedInstitutionCoverage ?? 500}+`;
+      document.getElementById('stat-institutions-sub').textContent = `${c.totalInstitutions ?? 6} representative institutions in demo`;
+      document.getElementById('stat-services').textContent = c.totalServices ?? 8;
+      document.getElementById('stat-services-sub').textContent = `${c.healthyServices ?? 6} healthy · ${c.degradedServices ?? 1} degraded · ${c.highRiskServices ?? 1} high-risk`;
+      document.getElementById('stat-high-risk-services').textContent = c.highRiskServices ?? 0;
+      document.getElementById('stat-incidents').textContent = c.openIncidents ?? 0;
+      document.getElementById('stat-incidents-sub').textContent = (c.openIncidents || 0) > 0 ? `${c.openIncidents} active tickets` : 'all contained / resolved';
+      
+      const compScore = dash.complianceScore !== undefined ? dash.complianceScore : 80;
+      document.getElementById('stat-compliance').textContent = `${compScore}%`;
+      document.getElementById('stat-compliance-sub').textContent = compScore >= 80 ? 'Good Security Posture' : 'Elevated Risk Factors';
+
+      // Counts strip
+      document.getElementById('stat-servers').textContent    = c.totalServers ?? 0;
+      document.getElementById('stat-servers-sub').textContent = `${c.runningServers ?? 0} running`;
+      document.getElementById('stat-firewalls').textContent  = c.totalFirewalls ?? 0;
+      document.getElementById('stat-firewalls-sub').textContent = `${c.activeFirewalls ?? 0} active`;
+      document.getElementById('stat-licenses').textContent   = c.totalLicenses ?? 0;
+      document.getElementById('stat-licenses-sub').textContent = `${c.expiredLicenses ?? 0} expired`;
+      document.getElementById('stat-unpatched').textContent  = dash.unpatchedServers?.length || 0;
+      document.getElementById('stat-highrisk').textContent   = dash.highRiskServerCount || 0;
+
+      // Badges count
+      document.getElementById('badge-healthy-count').textContent  = c.healthyServices ?? 0;
+      document.getElementById('badge-degraded-count').textContent = c.degradedServices ?? 0;
+      document.getElementById('badge-risk-count').textContent     = c.highRiskServices ?? 0;
+
+      // Sidebar badge
+      const badge = document.getElementById('incident-badge');
+      if ((c.openIncidents || 0) > 0) {
+        badge.textContent = c.openIncidents;
+        badge.style.display = '';
+      } else {
+        badge.style.display = 'none';
+      }
+
+      // Spotlight alert card
+      const spotlightEl = document.getElementById('spotlight-container');
+      if (dash.examPortalAlert) {
+        if (spotlightEl) spotlightEl.style.display = '';
+        document.getElementById('spotlight-score').textContent = '92';
+        document.getElementById('spotlight-title').textContent = `${dash.examPortalAlert.name} (${dash.examPortalAlert.domain || 'exam.nedi.local'}) - Threat Advisory`;
+        document.getElementById('spotlight-desc').textContent = `${dash.examPortalAlert.message}. Root cause: Unpatched RHEL kernel on App server, expired Oracle Database 19c license, and active credential guessing against serveradmin.`;
+      }
+
+      // 8 Monitored Services Grid
+      const servicesEl = document.getElementById('services-grid');
+      if (dash.services && dash.services.length > 0) {
+        servicesEl.innerHTML = dash.services.map(s => {
+          const icon = serviceIconMap[s.serviceCode] || '💻';
+          const mappedServer = serviceServerMap[s.serviceCode] || 'NEDI Core Cluster';
+          const isHighRisk = s.status === 'HIGH_RISK' || s.status === 'DOWN';
+          const isDegraded = s.status === 'DEGRADED';
+          const cardClass = isHighRisk ? 'service-card high-risk' : isDegraded ? 'service-card degraded' : 'service-card';
+          const pulseClass = isHighRisk ? 'pulse-red' : isDegraded ? 'pulse-yellow' : 'pulse-green';
+          const badgeClass = isHighRisk ? 'badge-red' : isDegraded ? 'badge-yellow' : 'badge-green';
+
+          let stars = '★'.repeat(s.criticalityLevel || 3);
+
+          return `
+            <div class="${cardClass}">
+              <div class="service-head">
+                <div>
+                  <div style="font-size:20px;margin-bottom:4px;">${icon}</div>
+                  <div class="service-name">${s.name}</div>
+                </div>
+                <span class="badge ${badgeClass}">
+                  <span class="pulse-dot ${pulseClass}"></span> ${s.status}
+                </span>
+              </div>
+              <div class="service-domain">${s.hostDomain || s.serviceCode.toLowerCase() + '.nedi.local'}</div>
+              <p style="font-size:12px;color:var(--text-secondary);min-height:36px;margin-bottom:10px;line-height:1.4;">
+                ${s.description || 'Core educational workflow service monitored by CyberShield Nexus.'}
+              </p>
+              <div class="service-meta">
+                <span>Criticality: <strong style="color:var(--accent-yellow)">${stars}</strong></span>
+                <span style="font-family:'JetBrains Mono',monospace;color:var(--text-secondary)">${mappedServer}</span>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Institutions list
+      const instEl = document.getElementById('institutions-list');
+      if (dash.institutions && dash.institutions.length > 0) {
+        instEl.innerHTML = dash.institutions.map(inst => {
+          const isBad = inst.status === 'HIGH_RISK' || inst.status === 'OFFLINE';
+          const isWarn = inst.status === 'DEGRADED';
+          const badgeStyle = isBad ? 'badge-red' : isWarn ? 'badge-yellow' : 'badge-green';
+          return `
+            <div style="background:var(--bg-card2);border:1px solid var(--border);border-radius:8px;padding:8px 14px;display:flex;align-items:center;gap:10px;font-size:12px;">
+              <span style="font-weight:600;color:var(--text-primary);">${inst.name}</span>
+              <span style="font-size:11px;color:var(--text-muted);">(${inst.city}, ${inst.state})</span>
+              <span class="badge ${badgeStyle}">${inst.status}</span>
+            </div>
+          `;
+        }).join('');
+      } else {
+        instEl.innerHTML = `<div style="padding:8px;color:var(--text-muted);font-size:12px">No institution telemetry recorded.</div>`;
+      }
+
+      // Open Incidents
+      const incEl = document.getElementById('incidents-list');
+      if (!dash.openIncidents?.length) {
+        incEl.innerHTML = `<div style="padding:24px;text-align:center;color:var(--accent-green)">✅ All security incidents resolved. System posture nominal.</div>`;
+      } else {
+        incEl.innerHTML = dash.openIncidents.slice(0, 5).map(i => `
+          <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">
+            <span class="badge ${i.severity === 'CRITICAL' || i.severity === 'HIGH' ? 'badge-red' : i.severity === 'MEDIUM' ? 'badge-orange' : 'badge-yellow'}">${i.severity}</span>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:12px;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${i.title}</div>
+              <div style="font-size:11px;color:var(--text-muted)">Risk Score: ${i.riskScore != null ? i.riskScore : '—'}/100 · Affected: ${i.affectedUsername || (i.relatedAssetId ? 'Asset #' + i.relatedAssetId : 'Infrastructure')}</div>
+            </div>
+            <a href="/incidents.html" class="btn btn-sm btn-secondary" style="padding:4px 8px;font-size:11px">Respond →</a>
+          </div>`).join('');
+      }
+
+      // License Alerts
+      const licEl = document.getElementById('license-alerts');
+      const allAlerts = [
+        ...(dash.expiredLicenses || []).map(l => ({ ...l, alertType: 'EXPIRED' })),
+        ...(dash.expiringSoonLicenses || []).map(l => ({ ...l, alertType: 'EXPIRING SOON' }))
+      ];
+      if (!allAlerts.length) {
+        licEl.innerHTML = `<div style="padding:24px;text-align:center;color:var(--accent-green)">✅ All infrastructure licenses valid and compliant.</div>`;
+      } else {
+        licEl.innerHTML = allAlerts.slice(0, 6).map(l => `
+          <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">
+            <span class="badge ${l.alertType === 'EXPIRED' ? 'badge-red' : 'badge-yellow'}">${l.alertType}</span>
+            <div style="flex:1;">
+              <div style="font-size:12px;font-weight:500;color:var(--text-primary)">${l.softwareName}</div>
+              <div style="font-size:11px;color:var(--text-muted)">Assigned: ${l.assignedTo || 'Unassigned'} · Vendor: ${l.vendor}</div>
+            </div>
+            <span style="font-size:11px;color:var(--text-muted);font-family:'JetBrains Mono',monospace">${formatDate(l.expiryDate)}</span>
+          </div>`).join('');
+      }
+
+      // Unpatched servers
+      const unpEl = document.getElementById('unpatched-list');
+      if (!dash.unpatchedServers?.length) {
+        unpEl.innerHTML = `<div style="padding:24px;text-align:center;color:var(--accent-green)">✅ All servers updated within 90-day cycle.</div>`;
+      } else {
+        unpEl.innerHTML = dash.unpatchedServers.map(s => `
+          <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--text-primary)">${s.name}</div>
+              <div style="font-size:11px;color:var(--text-muted);margin-top:2px">
+                ${s.operatingSystem} ${s.osVersion} · IP: ${s.ipAddress} · Owner: ${s.owner || 'sysadmin'}
+              </div>
+            </div>
+            <span class="badge badge-red">PATCH OVERDUE</span>
+          </div>`).join('');
+      }
+
+      // Audit log stream
+      const auditEl = document.getElementById('audit-log-list');
+      if (!dash.recentAuditLogs?.length) {
+        auditEl.innerHTML = `<div style="padding:24px;text-align:center;color:var(--text-muted)">No audit events recorded yet.</div>`;
+      } else {
+        auditEl.innerHTML = `
+          <table>
+            <thead><tr>
+              <th>Action</th><th>Account</th><th>Request URL</th><th>Source IP</th><th>Time</th>
+            </tr></thead>
+            <tbody>
+              ${dash.recentAuditLogs.slice(0, 7).map(l => `
+                <tr>
+                  <td><span class="log-action ${l.action}">${l.action}</span></td>
+                  <td class="text-mono" style="font-size:12px">${l.attemptedUsername || '—'}</td>
+                  <td>${l.requestUrl ? `<span class="url-badge" style="font-size:10px;padding:2px 6px">${l.requestUrl}</span>` : '<span style="color:var(--text-muted)">—</span>'}</td>
+                  <td class="text-mono" style="font-size:11px;color:var(--text-muted)">${l.ipAddress || '—'}</td>
+                  <td style="font-size:11px;color:var(--text-muted)">${formatDateTime(l.timestamp)}</td>
+                </tr>`).join('')}
+            </tbody>
+          </table>`;
+      }
+
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('content').style.display = '';
+
+    } catch (err) {
+      document.getElementById('loading').innerHTML =
+        `<div style="text-align:center;padding:40px;color:var(--accent-red)">❌ Failed to load NEDI Command Dashboard: ${err.message}</div>`;
+    }
+  }
+
+  loadDashboard();
+  // Auto-refresh every 20 seconds
+  setInterval(loadDashboard, 20000);
+</script>
+
+<!-- ── College Live Threat Monitor JS ── -->
+<script>
+  // Severity → color mapping
+  const sevColor = {
+    'CRITICAL': '#ef4444',
+    'HIGH':     '#f97316',
+    'MEDIUM':   '#eab308',
+    'LOW':      '#10b981'
+  };
+  const sevBg = {
+    'CRITICAL': 'rgba(239,68,68,0.12)',
+    'HIGH':     'rgba(249,115,22,0.12)',
+    'MEDIUM':   'rgba(234,179,8,0.1)',
+    'LOW':      'rgba(16,185,129,0.08)'
+  };
+  const evtIcon = {
+    'SQL_INJECTION': '💉',
+    'XSS':           '🕷️',
+    'BRUTE_FORCE':   '🔨',
+    'RECON':         '🔍',
+    'LOGIN_ATTEMPT': '🔑',
+    'EXAM_ACCESS':   '📝',
+    'FACULTY_ACCESS':'👨‍🏫',
+    'PAGE_ACCESS':   '🌐'
+  };
+
+  function fmtTime(ts) {
+    if (!ts || ts === '—') return '—';
+    try {
+      return new Date(ts).toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+    } catch { return ts.toString().substring(11, 19) || '—'; }
+  }
+
+  function renderCollegeCards(cards) {
+    const container = document.getElementById('college-cards');
+    if (!cards || !cards.length) return;
+
+    container.innerHTML = cards.map(c => {
+      const color  = sevColor[c.severity]  || '#10b981';
+      const bg     = sevBg[c.severity]     || 'rgba(16,185,129,0.08)';
+      const isActive = c.eventCount > 0;
+      const pulse  = c.severity === 'CRITICAL' || c.severity === 'HIGH';
+
+      return `
+        <div style="background:var(--bg-card);border:1px solid ${isActive ? color : 'var(--border)'};
+             border-radius:10px;padding:16px;transition:border-color 0.3s;
+             ${isActive ? 'box-shadow:0 0 0 1px ' + color + '33;' : ''}">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
+            <div>
+              <div style="font-size:14px;font-weight:700;color:var(--text-primary);">${c.collegeName}</div>
+              <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">📍 ${c.city}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;">
+              ${pulse ? '<span class="pulse-dot pulse-red"></span>' : ''}
+              <span style="background:${bg};color:${color};padding:3px 8px;border-radius:4px;font-size:11px;font-weight:700;border:1px solid ${color}33;">
+                ${c.severity}
+              </span>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:10px;margin-bottom:12px;align-items:center;">
+            <div style="text-align:center;min-width:56px;">
+              <div style="font-size:28px;font-weight:800;color:${color};line-height:1;">${c.riskScore}</div>
+              <div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;">Risk Score</div>
+            </div>
+            <div style="flex:1;font-size:12px;color:var(--text-secondary);">
+              <div style="margin-bottom:4px;">
+                <span style="color:var(--text-muted);">Last Attack:</span>
+                <span style="font-weight:600;color:${color};">${c.lastAttack}</span>
+              </div>
+              <div style="margin-bottom:4px;">
+                <span style="color:var(--text-muted);">Server:</span>
+                <span class="text-mono" style="font-size:11px;">${c.serverName !== '—' ? c.serverName + ' (' + c.serverIp + ')' : '—'}</span>
+              </div>
+              <div>
+                <span style="color:var(--text-muted);">Events:</span>
+                <span style="font-weight:600;">${c.eventCount} total</span>
+                ${c.incidentId ? ` · <span style="color:var(--accent-red);">Incident #${c.incidentId} created</span>` : ''}
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:6px;font-size:11px;">
+            <span style="background:${c.status === 'HIGH_RISK' ? 'rgba(239,68,68,0.1)' : 'rgba(16,185,129,0.1)'};
+                  color:${c.status === 'HIGH_RISK' ? 'var(--accent-red)' : 'var(--accent-green)'};
+                  padding:2px 8px;border-radius:4px;font-weight:600;">
+              ${c.status === 'HIGH_RISK' ? '🔴 HIGH RISK' : '🟢 ACTIVE'}
+            </span>
+            <span style="background:rgba(99,102,241,0.1);color:#818cf8;padding:2px 8px;border-radius:4px;">
+              ${c.institutionCode}
+            </span>
+            ${c.lastSeen !== '—' ? `<span style="color:var(--text-muted);padding:2px 4px;">⏱ ${fmtTime(c.lastSeen)}</span>` : ''}
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function renderEventFeed(events) {
+    const tbody = document.getElementById('college-event-tbody');
+    const countEl = document.getElementById('college-event-count');
+
+    if (!events || !events.length) {
+      tbody.innerHTML = `<tr><td colspan="7" style="padding:20px;text-align:center;color:var(--text-muted);">
+        Waiting for college site events... Visit <b>localhost:8082</b> or <b>localhost:8083</b> to trigger.
+      </td></tr>`;
+      if (countEl) countEl.textContent = '0 events';
+      return;
+    }
+
+    if (countEl) countEl.textContent = `${events.length} events`;
+
+    tbody.innerHTML = events.slice(0, 30).map(e => {
+      const color = sevColor[e.severity] || '#64748b';
+      const icon  = evtIcon[e.eventType] || '⚡';
+      const isAttack = ['SQL_INJECTION','XSS','BRUTE_FORCE','RECON'].includes(e.eventType);
+
+      return `
+        <tr style="${isAttack ? 'background:' + (sevBg[e.severity] || 'transparent') + ';' : ''}border-bottom:1px solid var(--border);">
+          <td style="padding:8px 12px;color:var(--text-muted);font-family:monospace;font-size:11px;white-space:nowrap;">${fmtTime(e.timestamp)}</td>
+          <td style="padding:8px 12px;">
+            <div style="font-size:12px;font-weight:600;color:var(--text-primary);">${e.collegeName || '—'}</div>
+            <div style="font-size:10px;color:var(--text-muted);">${e.collegeCity || ''}</div>
+          </td>
+          <td style="padding:8px 12px;font-size:12px;color:var(--text-secondary);">${e.page || '—'}</td>
+          <td style="padding:8px 12px;">
+            <span style="color:${color};font-size:12px;font-weight:${isAttack ? '700' : '400'};">
+              ${icon} ${e.attackPattern || e.eventType || '—'}
+            </span>
+          </td>
+          <td style="padding:8px 12px;font-family:monospace;font-size:11px;color:var(--text-muted);">
+            ${e.serverName || '—'}<br>${e.serverIp || ''}
+          </td>
+          <td style="padding:8px 12px;text-align:center;">
+            <span style="background:${sevBg[e.severity] || 'transparent'};color:${color};
+                  padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;">
+              ${e.riskScore ?? '—'}
+            </span>
+          </td>
+          <td style="padding:8px 12px;font-size:11px;">
+            ${e.incidentCreated
+              ? `<a href="/incidents.html" style="color:var(--accent-red);font-weight:700;">🚨 #${e.incidentId}</a>`
+              : `<span style="color:var(--text-muted);">—</span>`}
+          </td>
+        </tr>`;
+    }).join('');
+  }
+
+  async function pollCollegeMonitor() {
+    const statusEl = document.getElementById('college-monitor-status');
+    try {
+      const [liveResp, recentResp] = await Promise.all([
+        fetch('/api/college-events/live'),
+        fetch('/api/college-events/recent?limit=30')
+      ]);
+
+      if (liveResp.ok) {
+        const cards = await liveResp.json();
+        renderCollegeCards(cards);
+        const totalEvents = cards.reduce((sum, c) => sum + (c.eventCount || 0), 0);
+        if (statusEl) statusEl.textContent = totalEvents > 0
+          ? `🟢 ${totalEvents} events received — last update ${new Date().toLocaleTimeString('en-IN')}`
+          : `⚪ No events yet — ${new Date().toLocaleTimeString('en-IN')}`;
+      }
+
+      if (recentResp.ok) {
+        const events = await recentResp.json();
+        renderEventFeed(events);
+      }
+    } catch (err) {
+      if (statusEl) statusEl.textContent = `⚠️ Monitor offline — ${err.message}`;
+    }
+  }
+
+  // Start polling as soon as page loads
+  pollCollegeMonitor();
+  setInterval(pollCollegeMonitor, 3000); // every 3 seconds — real time!
+</script>
+</body>
+</html>
+

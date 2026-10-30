@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Servers — CyberShield Nexus</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-brand"><h1>CyberShield Nexus</h1><span>NEDI AI Cyber Command</span></div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <a href="/dashboard.html" class="nav-item"><span class="icon">📊</span> Dashboard</a>
+    <div class="nav-section-label">Assets</div>
+    <a href="/servers.html" class="nav-item active"><span class="icon">🖥️</span> Servers</a>
+    <a href="/firewalls.html" class="nav-item"><span class="icon">🔥</span> Firewalls</a>
+    <a href="/loadbalancers.html" class="nav-item"><span class="icon">⚖️</span> Load Balancers</a>
+    <a href="/licenses.html" class="nav-item"><span class="icon">📋</span> Licenses</a>
+    <a href="/hardware.html" class="nav-item"><span class="icon">⚙️</span> Hardware</a>
+    <div class="nav-section-label">Security</div>
+    <a href="/incidents.html" class="nav-item"><span class="icon">🚨</span> Incidents</a>
+    <a href="/risk.html" class="nav-item"><span class="icon">📈</span> Risk & Attack Path</a>
+    <a href="/audit-log.html" class="nav-item"><span class="icon">📜</span> Audit Log</a>
+    <a href="/users.html" id="nav-users" class="nav-item"><span class="icon">👤</span> Users & Roles</a>
+    <div class="nav-section-label">Tools</div>
+    <a href="/phishing-detector.html" class="nav-item"><span class="icon">🎣</span> Phishing Detector</a>
+  </nav>
+  <div class="sidebar-footer"><button onclick="logout()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:12px;">⏏ Sign Out</button></div>
+</aside>
+<header class="topbar">
+  <span class="topbar-title">Server Management</span>
+  <div class="topbar-right">
+    <div class="topbar-user">
+      <div class="user-avatar" id="topbar-avatar">A</div>
+      <div><div style="font-weight:600;font-size:13px" id="topbar-username"></div>
+      <div style="font-size:10px;color:var(--text-muted)" id="topbar-role"></div></div>
+    </div>
+  </div>
+</header>
+<main class="main-content">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h2 style="font-size:20px;font-weight:700">Servers</h2>
+      <p style="color:var(--text-muted);font-size:13px;margin-top:2px">Manage infrastructure servers</p>
+    </div>
+    <button class="btn btn-primary" id="add-server-btn" onclick="openAddModal()">＋ Add Server</button>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title" id="server-count">All Servers</span>
+      <input type="text" class="form-control" style="width:220px;padding:6px 12px" placeholder="🔍 Search servers..." oninput="filterTable(this.value)">
+    </div>
+    <div class="table-wrapper">
+      <div id="loading"><div class="spinner"></div></div>
+      <table id="server-table" style="display:none">
+        <thead><tr>
+          <th>Name</th><th>IP Address</th><th>OS</th><th>Status</th>
+          <th>Last Patch</th><th>Owner</th><th>Location</th><th>Actions</th>
+        </tr></thead>
+        <tbody id="server-body"></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<!-- Add/Edit Modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-title">Add Server</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="server-form">
+        <input type="hidden" id="server-id">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="form-group"><label class="form-label">Name *</label><input class="form-control" id="f-name" required></div>
+          <div class="form-group"><label class="form-label">IP Address *</label><input class="form-control" id="f-ip" required></div>
+          <div class="form-group"><label class="form-label">Operating System</label><input class="form-control" id="f-os"></div>
+          <div class="form-group"><label class="form-label">OS Version</label><input class="form-control" id="f-osver"></div>
+          <div class="form-group"><label class="form-label">Status *</label>
+            <select class="form-control" id="f-status">
+              <option>RUNNING</option><option>STOPPED</option><option>MAINTENANCE</option><option>DECOMMISSIONED</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">Owner</label><input class="form-control" id="f-owner"></div>
+          <div class="form-group"><label class="form-label">Location</label><input class="form-control" id="f-location"></div>
+          <div class="form-group"><label class="form-label">Last Patch Date</label><input class="form-control" id="f-patch" type="date"></div>
+          <div class="form-group"><label class="form-label">CPU Cores</label><input class="form-control" id="f-cpu" type="number"></div>
+          <div class="form-group"><label class="form-label">RAM (GB)</label><input class="form-control" id="f-ram" type="number"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Notes</label><input class="form-control" id="f-notes"></div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveServer()">Save Server</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+<script src="/js/auth.js"></script>
+<script>
+  requireAuth(); renderTopbarUser();
+  let servers = [];
+
+  async function load() {
+    try {
+      servers = await apiGet('/servers');
+      render(servers);
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('server-table').style.display = '';
+      document.getElementById('server-count').textContent = `All Servers (${servers.length})`;
+    } catch(e) { toast('Failed to load servers: ' + e.message, 'error'); }
+  }
+
+  function render(data) {
+    const isV = isViewer();
+    const isA = isAdmin();
+    const isSA = isServerAdmin();
+
+    const addBtn = document.getElementById('add-server-btn');
+    if (addBtn) addBtn.style.display = isV ? 'none' : '';
+
+    document.getElementById('server-body').innerHTML = data.map(s => {
+      const daysSincePatch = s.lastPatchDate ? Math.floor((Date.now() - new Date(s.lastPatchDate)) / 86400000) : 999;
+      const patchBadge = daysSincePatch > 90
+        ? `<span class="badge badge-red">⚠ ${daysSincePatch}d ago</span>`
+        : `<span class="badge badge-green">${daysSincePatch}d ago</span>`;
+
+      let actions = '<span class="text-muted" style="font-size:11px">Read only</span>';
+      if (isA) {
+        actions = `
+          <button class="btn btn-sm btn-secondary" onclick="editServer(${s.id})">✏ Edit</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteServer(${s.id})" style="margin-left:4px">🗑</button>
+        `;
+      } else if (isSA) {
+        actions = `<button class="btn btn-sm btn-secondary" onclick="editServer(${s.id})">✏ Edit</button>`;
+      }
+
+      return `<tr>
+        <td><strong>${s.name}</strong></td>
+        <td class="text-mono" style="font-size:12px">${s.ipAddress}</td>
+        <td>${s.operatingSystem || '—'} <span style="color:var(--text-muted)">${s.osVersion || ''}</span></td>
+        <td>${statusBadge(s.status)}</td>
+        <td>${s.lastPatchDate ? patchBadge : '<span class="badge badge-red">Never</span>'}</td>
+        <td style="font-size:12px">${s.owner || '—'}</td>
+        <td style="font-size:12px;color:var(--text-muted)">${s.location || '—'}</td>
+        <td>${actions}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function filterTable(q) {
+    const filtered = servers.filter(s =>
+      s.name.toLowerCase().includes(q.toLowerCase()) ||
+      s.ipAddress.includes(q) ||
+      (s.owner || '').toLowerCase().includes(q.toLowerCase())
+    );
+    render(filtered);
+  }
+
+  function openAddModal() {
+    document.getElementById('modal-title').textContent = 'Add Server';
+    document.getElementById('server-id').value = '';
+    ['name','ip','os','osver','owner','location','patch','notes'].forEach(f => document.getElementById('f-'+f).value = '');
+    document.getElementById('f-status').value = 'RUNNING';
+    document.getElementById('modal').classList.add('open');
+  }
+
+  function editServer(id) {
+    const s = servers.find(x => x.id === id);
+    if (!s) return;
+    document.getElementById('modal-title').textContent = 'Edit Server';
+    document.getElementById('server-id').value = s.id;
+    document.getElementById('f-name').value = s.name;
+    document.getElementById('f-ip').value = s.ipAddress;
+    document.getElementById('f-os').value = s.operatingSystem || '';
+    document.getElementById('f-osver').value = s.osVersion || '';
+    document.getElementById('f-status').value = s.status;
+    document.getElementById('f-owner').value = s.owner || '';
+    document.getElementById('f-location').value = s.location || '';
+    document.getElementById('f-patch').value = s.lastPatchDate || '';
+    document.getElementById('f-cpu').value = s.cpuCores || '';
+    document.getElementById('f-ram').value = s.ramGb || '';
+    document.getElementById('f-notes').value = s.notes || '';
+    document.getElementById('modal').classList.add('open');
+  }
+
+  async function saveServer() {
+    const id = document.getElementById('server-id').value;
+    const body = {
+      name: document.getElementById('f-name').value,
+      ipAddress: document.getElementById('f-ip').value,
+      operatingSystem: document.getElementById('f-os').value,
+      osVersion: document.getElementById('f-osver').value,
+      status: document.getElementById('f-status').value,
+      owner: document.getElementById('f-owner').value,
+      location: document.getElementById('f-location').value,
+      lastPatchDate: document.getElementById('f-patch').value || null,
+      cpuCores: parseInt(document.getElementById('f-cpu').value) || null,
+      ramGb: parseInt(document.getElementById('f-ram').value) || null,
+      notes: document.getElementById('f-notes').value
+    };
+    try {
+      if (id) await apiPut('/servers/' + id, body);
+      else await apiPost('/servers', body);
+      toast(id ? 'Server updated!' : 'Server added!', 'success');
+      closeModal();
+      load();
+    } catch(e) { toast('Error: ' + e.message, 'error'); }
+  }
+
+  async function deleteServer(id) {
+    if (!confirm('Delete this server? This cannot be undone.')) return;
+    try {
+      await apiDelete('/servers/' + id);
+      toast('Server deleted', 'success');
+      load();
+    } catch(e) { toast('Error: ' + e.message, 'error'); }
+  }
+
+  function closeModal() { document.getElementById('modal').classList.remove('open'); }
+
+  load();
+</script>
+</body>
+</html>

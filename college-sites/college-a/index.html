@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>College A - South Campus | Chennai</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Segoe UI',sans-serif; background:#0f172a; color:#e2e8f0; min-height:100vh; }
+
+    /* Header */
+    header { background:linear-gradient(135deg,#1e3a5f 0%,#0f2744 100%); border-bottom:3px solid #2563eb; padding:0 40px; }
+    .header-inner { max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:70px; }
+    .logo { display:flex;align-items:center;gap:14px; }
+    .logo-icon { width:46px;height:46px;background:linear-gradient(135deg,#2563eb,#1d4ed8);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px; }
+    .logo-text h1 { font-size:18px;font-weight:800;color:#fff; }
+    .logo-text span { font-size:11px;color:#93c5fd; }
+    nav a { color:#93c5fd;text-decoration:none;margin-left:24px;font-size:13px;font-weight:500;transition:color 0.2s; }
+    nav a:hover { color:#fff; }
+    .status-badge { background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.4);color:#10b981;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;display:flex;align-items:center;gap:6px; }
+    .pulse { width:6px;height:6px;border-radius:50%;background:#10b981;animation:pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.4} }
+
+    /* Hero */
+    .hero { background:linear-gradient(180deg,#0f2744 0%,#0f172a 100%);padding:60px 40px;text-align:center; }
+    .hero h2 { font-size:36px;font-weight:800;color:#fff;margin-bottom:10px; }
+    .hero h2 span { color:#3b82f6; }
+    .hero p { font-size:16px;color:#94a3b8;max-width:600px;margin:0 auto 32px; }
+    .hero-badges { display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:36px; }
+    .badge { padding:6px 16px;border-radius:20px;font-size:12px;font-weight:600; }
+    .badge-blue { background:rgba(37,99,235,0.2);border:1px solid rgba(37,99,235,0.5);color:#93c5fd; }
+    .badge-green { background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.4);color:#10b981; }
+    .badge-yellow { background:rgba(234,179,8,0.15);border:1px solid rgba(234,179,8,0.4);color:#fbbf24; }
+
+    /* Stats */
+    .stats-row { display:flex;gap:24px;justify-content:center;margin-bottom:40px;flex-wrap:wrap; }
+    .stat { text-align:center; }
+    .stat-val { font-size:32px;font-weight:800;color:#3b82f6; }
+    .stat-lbl { font-size:11px;color:#64748b;margin-top:2px; }
+
+    /* Quick links */
+    .quick-links { display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;max-width:900px;margin:0 auto; }
+    .quick-card { background:#1e293b;border:1px solid #334155;border-radius:12px;padding:24px;text-align:center;text-decoration:none;color:#e2e8f0;transition:all 0.2s;cursor:pointer; }
+    .quick-card:hover { border-color:#3b82f6;background:#1e3a5f;transform:translateY(-2px); }
+    .quick-card .icon { font-size:32px;margin-bottom:12px; }
+    .quick-card h3 { font-size:14px;font-weight:700;margin-bottom:6px; }
+    .quick-card p { font-size:12px;color:#64748b; }
+
+    /* Announcements */
+    .section { max-width:1200px;margin:0 auto;padding:40px; }
+    .section-title { font-size:20px;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:8px; }
+    .announcements { display:grid;grid-template-columns:2fr 1fr;gap:20px; }
+    .announce-list { background:#1e293b;border:1px solid #334155;border-radius:12px;overflow:hidden; }
+    .announce-item { padding:16px 20px;border-bottom:1px solid #1e293b;transition:background 0.2s; }
+    .announce-item:last-child { border-bottom:none; }
+    .announce-item:hover { background:#0f2744; }
+    .announce-tag { font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;margin-right:8px; }
+    .tag-exam { background:rgba(239,68,68,0.15);color:#ef4444; }
+    .tag-notice { background:rgba(37,99,235,0.15);color:#60a5fa; }
+    .tag-event { background:rgba(16,185,129,0.15);color:#10b981; }
+    .announce-title { font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:4px; }
+    .announce-date { font-size:11px;color:#64748b; }
+
+    .sidebar-card { background:#1e293b;border:1px solid #334155;border-radius:12px;padding:20px; }
+    .sidebar-card h4 { font-size:14px;font-weight:700;margin-bottom:14px;color:#93c5fd; }
+    .contact-item { font-size:12px;color:#94a3b8;margin-bottom:10px;display:flex;gap:8px;align-items:flex-start; }
+
+    footer { background:#0a1628;border-top:1px solid #1e293b;padding:24px 40px;text-align:center;font-size:12px;color:#475569;margin-top:40px; }
+    footer span { color:#64748b; }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">🎓</div>
+      <div class="logo-text">
+        <h1>College A – South Campus</h1>
+        <span>Chennai, Tamil Nadu · Est. 1987</span>
+      </div>
+    </div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="login.html">Student Login</a>
+      <a href="exam.html">Exam Portal</a>
+      <a href="faculty.html">Faculty</a>
+      <a href="admin.html">Admin</a>
+    </nav>
+    <div class="status-badge">
+      <span class="pulse"></span> PORTAL ACTIVE
+    </div>
+  </div>
+</header>
+
+<!-- Hero -->
+<div class="hero">
+  <h2>Welcome to <span>College A</span> – South Campus</h2>
+  <p>Serving 8,400+ students in Engineering, Technology & Applied Sciences. Chennai's premier technical institution since 1987.</p>
+  <div class="hero-badges">
+    <span class="badge badge-blue">📍 Chennai, Tamil Nadu</span>
+    <span class="badge badge-green">✅ NAAC A++ Accredited</span>
+    <span class="badge badge-yellow">🏆 NIRF Ranked Top 50</span>
+    <span class="badge badge-blue">🔬 8 Departments</span>
+  </div>
+  <div class="stats-row">
+    <div class="stat"><div class="stat-val">8,400+</div><div class="stat-lbl">Students</div></div>
+    <div class="stat"><div class="stat-val">480</div><div class="stat-lbl">Faculty</div></div>
+    <div class="stat"><div class="stat-val">37 yrs</div><div class="stat-lbl">Experience</div></div>
+    <div class="stat"><div class="stat-val">95%</div><div class="stat-lbl">Placement Rate</div></div>
+  </div>
+  <div class="quick-links">
+    <a class="quick-card" href="login.html">
+      <div class="icon">🔑</div>
+      <h3>Student Login</h3>
+      <p>Access your academic dashboard, attendance, and results</p>
+    </a>
+    <a class="quick-card" href="exam.html">
+      <div class="icon">📝</div>
+      <h3>Exam Portal</h3>
+      <p>Hall tickets, timetables, and semester exam registration</p>
+    </a>
+    <a class="quick-card" href="faculty.html">
+      <div class="icon">👨‍🏫</div>
+      <h3>Faculty Portal</h3>
+      <p>Staff login, mark entry, and department management</p>
+    </a>
+    <a class="quick-card" href="admin.html">
+      <div class="icon">⚙️</div>
+      <h3>Admin Panel</h3>
+      <p>Administration and institutional management tools</p>
+    </a>
+  </div>
+</div>
+
+<!-- Content -->
+<div class="section">
+  <div class="section-title">📢 Latest Announcements</div>
+  <div class="announcements">
+    <div class="announce-list">
+      <div class="announce-item">
+        <span class="announce-tag tag-exam">EXAM</span>
+        <div class="announce-title">Semester V Exam Hall Tickets Now Available</div>
+        <div class="announce-date">September 21, 2026 · Examination Cell</div>
+      </div>
+      <div class="announce-item">
+        <span class="announce-tag tag-notice">NOTICE</span>
+        <div class="announce-title">Fee Payment Portal Open — Last Date: Oct 5, 2026</div>
+        <div class="announce-date">September 18, 2026 · Accounts Office</div>
+      </div>
+      <div class="announce-item">
+        <span class="announce-tag tag-event">EVENT</span>
+        <div class="announce-title">TechFest 2026 — Registrations Open</div>
+        <div class="announce-date">September 15, 2026 · Student Council</div>
+      </div>
+      <div class="announce-item">
+        <span class="announce-tag tag-notice">NOTICE</span>
+        <div class="announce-title">Internal Assessment Marks Published — Check Student Portal</div>
+        <div class="announce-date">September 12, 2026 · Examination Cell</div>
+      </div>
+      <div class="announce-item">
+        <span class="announce-tag tag-exam">EXAM</span>
+        <div class="announce-title">Practical Exam Schedule — Nov 2026 Released</div>
+        <div class="announce-date">September 10, 2026 · Examination Cell</div>
+      </div>
+    </div>
+    <div>
+      <div class="sidebar-card mb-4" style="margin-bottom:16px;">
+        <h4>📞 Quick Contacts</h4>
+        <div class="contact-item">📧 <span>admissions@collegea.edu.in</span></div>
+        <div class="contact-item">📞 <span>044 - 2435 7890</span></div>
+        <div class="contact-item">🏢 <span>Principal Office: +91 98401 12345</span></div>
+        <div class="contact-item">📍 <span>Anna Nagar West, Chennai – 600 040</span></div>
+      </div>
+      <div class="sidebar-card">
+        <h4>🖥️ IT Services (Server: 10.0.1.10)</h4>
+        <div class="contact-item">🟢 <span>Student Portal — Online</span></div>
+        <div class="contact-item">🟡 <span>Exam Server — Load: Medium</span></div>
+        <div class="contact-item">🟢 <span>LMS — Online</span></div>
+        <div class="contact-item" style="font-size:10px;color:#475569;">Monitored by CyberShield NEDI SOC</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <span>© 2026 College A – South Campus, Chennai, Tamil Nadu.</span>
+  All digital services monitored by <span style="color:#3b82f6;">CyberShield NEDI SOC</span> · Server: <span style="color:#475569;font-family:monospace;">NEDI-STUDENT-WEB-01 (10.0.1.10)</span>
+</footer>
+
+<script src="../college-beacon.js"></script>
+<script>
+  // Auto-beacon: page load event
+  autoBeacon('COL-A-SOUTH', 'College A - South Campus', 'index', 'PAGE_ACCESS');
+</script>
+</body>
+</html>

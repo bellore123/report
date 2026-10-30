@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Security Audit Log & Endpoint Telemetry — CyberShield Nexus</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .kpi-val { font-size: 24px; font-weight: 700; color: var(--text-primary); }
+    .kpi-lbl { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-muted); }
+
+    .url-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      background: rgba(0, 212, 255, 0.08);
+      border: 1px solid rgba(0, 212, 255, 0.25);
+      color: var(--accent);
+      padding: 3px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .method-pill {
+      font-weight: 700;
+      font-size: 9px;
+      padding: 1px 4px;
+      border-radius: 3px;
+    }
+    .m-post { background: rgba(59, 130, 246, 0.3); color: #60a5fa; }
+    .m-get { background: rgba(34, 197, 94, 0.3); color: #4ade80; }
+    .m-put { background: rgba(245, 158, 11, 0.3); color: #fbbf24; }
+    .m-del { background: rgba(239, 68, 68, 0.3); color: #f87171; }
+  </style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-brand"><h1>CyberShield Nexus</h1><span>NEDI AI Cyber Command</span></div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <a href="/dashboard.html" class="nav-item"><span class="icon">📊</span> Dashboard</a>
+    <div class="nav-section-label">Assets</div>
+    <a href="/servers.html" class="nav-item"><span class="icon">🖥️</span> Servers</a>
+    <a href="/firewalls.html" class="nav-item"><span class="icon">🔥</span> Firewalls</a>
+    <a href="/loadbalancers.html" class="nav-item"><span class="icon">⚖️</span> Load Balancers</a>
+    <a href="/licenses.html" class="nav-item"><span class="icon">📋</span> Licenses</a>
+    <a href="/hardware.html" class="nav-item"><span class="icon">⚙️</span> Hardware</a>
+    <div class="nav-section-label">Security</div>
+    <a href="/incidents.html" class="nav-item"><span class="icon">🚨</span> Incidents</a>
+    <a href="/risk.html" class="nav-item"><span class="icon">📈</span> Risk & Attack Path</a>
+    <a href="/audit-log.html" class="nav-item active"><span class="icon">📜</span> Audit Log</a>
+    <a href="/users.html" id="nav-users" class="nav-item"><span class="icon">👤</span> Users & Roles</a>
+    <div class="nav-section-label">Tools</div>
+    <a href="/phishing-detector.html" class="nav-item"><span class="icon">🎣</span> Phishing Detector</a>
+  </nav>
+  <div class="sidebar-footer"><button onclick="logout()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:12px;">⏏ Sign Out</button></div>
+</aside>
+<header class="topbar">
+  <span class="topbar-title">Forensic Audit Log & API Endpoint Activity</span>
+  <div class="topbar-right">
+    <div class="topbar-user">
+      <div class="user-avatar" id="topbar-avatar">A</div>
+      <div><div style="font-weight:600;font-size:13px" id="topbar-username"></div>
+      <div style="font-size:10px;color:var(--text-muted)" id="topbar-role"></div></div>
+    </div>
+  </div>
+</header>
+<main class="main-content">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h2 style="font-size:20px;font-weight:700">Audit Trail & Request Telemetry</h2>
+      <p style="color:var(--text-muted);font-size:13px;margin-top:2px">Immutable audit records tracking operators, API request URLs, state mutations, and access attempts</p>
+    </div>
+    <div class="flex gap-2">
+      <select class="form-control" id="filter-action" style="width:160px" onchange="applyFilter()">
+        <option value="">All Actions</option>
+        <option>LOGIN_OK</option><option>LOGIN_FAIL</option>
+        <option>CREATE</option><option>READ</option><option>UPDATE</option><option>DELETE</option>
+      </select>
+      <button class="btn btn-primary" onclick="load()">🔄 Refresh</button>
+    </div>
+  </div>
+
+  <!-- KPI Strip -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <span class="kpi-lbl">Total Audit Records</span>
+      <span class="kpi-val" id="kpi-total-logs">0</span>
+      <span style="font-size:11px;color:var(--text-muted)">Forensic database events</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-lbl">Unique Operators / Users</span>
+      <span class="kpi-val" style="color:var(--accent)" id="kpi-unique-users">0</span>
+      <span style="font-size:11px;color:var(--text-muted)">Authenticated identity actors</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-lbl">API Request Endpoints</span>
+      <span class="kpi-val" style="color:var(--accent-green)" id="kpi-unique-urls">0</span>
+      <span style="font-size:11px;color:var(--text-muted)">Monitored API paths & URLs</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-lbl">Authentication Failures</span>
+      <span class="kpi-val" style="color:var(--accent-red)" id="kpi-failures">0</span>
+      <span style="font-size:11px;color:var(--text-muted)">A07 Brute-force & spray events</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header" style="flex-wrap:wrap;gap:12px">
+      <span class="card-title" id="log-count">Audit Log</span>
+      <div class="flex gap-2 items-center" style="margin-left:auto">
+        <input type="text" id="log-search" class="form-control" style="width:280px;padding:6px 12px;font-size:12px" placeholder="🔍 Search User, URL, Target, or IP..." oninput="applyFilter()">
+      </div>
+    </div>
+    <div class="table-wrapper">
+      <div id="loading"><div class="spinner"></div></div>
+      <table id="log-table" style="display:none">
+        <thead><tr>
+          <th>#</th>
+          <th>Action</th>
+          <th>User Identity</th>
+          <th>Request URL / Endpoint</th>
+          <th>Target Asset</th>
+          <th>Client IP Address</th>
+          <th>Forensic Detail</th>
+          <th>Timestamp</th>
+        </tr></thead>
+        <tbody id="log-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- OWASP mapping key -->
+  <div class="card mt-4">
+    <div class="card-header"><span class="card-title">🔐 OWASP ASVS & MITRE ATT&CK Mapping</span></div>
+    <div class="card-body">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+        <div style="padding:14px;background:var(--bg-card2);border-radius:8px;border:1px solid var(--border)">
+          <div style="font-weight:600;margin-bottom:6px;color:var(--accent)">A07 — Identification & Auth Failures</div>
+          <div style="font-size:12px;color:var(--text-muted)">Repeated password spraying recorded on <code>POST /api/auth/login</code> → automatic lockout trigger.</div>
+        </div>
+        <div style="padding:14px;background:var(--bg-card2);border-radius:8px;border:1px solid var(--border)">
+          <div style="font-weight:600;margin-bottom:6px;color:var(--accent)">A01 — Broken Access Control (IDOR)</div>
+          <div style="font-size:12px;color:var(--text-muted)">Unauthorized parameter probe on <code>GET /api/servers/3</code> → blocked with HTTP 403 & logged.</div>
+        </div>
+        <div style="padding:14px;background:var(--bg-card2);border-radius:8px;border:1px solid var(--border)">
+          <div style="font-weight:600;margin-bottom:6px;color:var(--accent)">A09 — Security Logging & Monitoring</div>
+          <div style="font-size:12px;color:var(--text-muted)">All administrative requests, load balancer reconfigurations, and containment actions persistently journaled.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div id="toast-container"></div>
+<script src="/js/auth.js"></script>
+<script>
+  requireAuth(); renderTopbarUser();
+  let logs = [];
+
+  function formatUrl(url) {
+    if (!url) return '<span style="color:var(--text-muted)">—</span>';
+    const parts = url.split(' ');
+    if (parts.length >= 2) {
+      const method = parts[0].toUpperCase();
+      const path = parts.slice(1).join(' ');
+      const cls = method === 'POST' ? 'm-post' : method === 'GET' ? 'm-get' : method === 'PUT' ? 'm-put' : 'm-del';
+      return `<span class="url-badge"><span class="method-pill ${cls}">${method}</span> ${path}</span>`;
+    }
+    return `<span class="url-badge">${url}</span>`;
+  }
+
+  async function load() {
+    try {
+      logs = await apiGet('/audit-logs');
+      if (!Array.isArray(logs)) logs = [logs];
+
+      // Update KPI metrics
+      const usersSet = new Set(logs.map(l => l.attemptedUsername || l.userId).filter(Boolean));
+      const urlsSet = new Set(logs.map(l => l.requestUrl).filter(Boolean));
+      const failCount = logs.filter(l => l.action === 'LOGIN_FAIL').length;
+
+      document.getElementById('kpi-total-logs').textContent = logs.length;
+      document.getElementById('kpi-unique-users').textContent = usersSet.size;
+      document.getElementById('kpi-unique-urls').textContent = urlsSet.size;
+      document.getElementById('kpi-failures').textContent = failCount;
+
+      applyFilter();
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('log-table').style.display = '';
+    } catch(e) { toast('Failed to load audit logs: ' + e.message, 'error'); }
+  }
+
+  function applyFilter() {
+    const action = document.getElementById('filter-action').value;
+    const search = (document.getElementById('log-search').value || '').toLowerCase();
+    const filtered = logs.filter(l => {
+      if (action && l.action !== action) return false;
+      if (search) {
+        const matchUser = (l.attemptedUsername || String(l.userId || '')).toLowerCase().includes(search);
+        const matchIp = (l.ipAddress || '').includes(search);
+        const matchUrl = (l.requestUrl || '').toLowerCase().includes(search);
+        const matchDetail = (l.detail || '').toLowerCase().includes(search);
+        const matchTarget = (l.targetType || '').toLowerCase().includes(search);
+        return matchUser || matchIp || matchUrl || matchDetail || matchTarget;
+      }
+      return true;
+    });
+    render(filtered);
+  }
+
+  function render(data) {
+    document.getElementById('log-count').textContent = `Audit Log (${data.length} of ${logs.length} entries)`;
+    document.getElementById('log-body').innerHTML = data.map((l, i) => `
+      <tr>
+        <td style="color:var(--text-muted);font-size:11px">${l.id}</td>
+        <td><span class="log-action ${l.action}">${l.action}</span></td>
+        <td>
+          <strong class="text-mono" style="font-size:12px;color:var(--text-primary)">${l.attemptedUsername || ('User #' + (l.userId || '—'))}</strong>
+        </td>
+        <td>${formatUrl(l.requestUrl)}</td>
+        <td style="font-size:11px;color:var(--text-muted)">
+          ${l.targetType ? `<span class="badge badge-gray">${l.targetType}</span>` : '—'}
+          ${l.targetAssetId ? '<span style="font-size:10px;margin-left:2px">#' + l.targetAssetId + '</span>' : ''}
+        </td>
+        <td class="text-mono" style="font-size:11px;color:var(--text-secondary)">${l.ipAddress || '—'}</td>
+        <td style="font-size:11px;color:var(--text-secondary);max-width:240px;line-height:1.4">${l.detail || '—'}</td>
+        <td style="font-size:11px;color:var(--text-muted)">${formatDateTime(l.timestamp)}</td>
+      </tr>`).join('') || '<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--text-muted)">No audit log entries found matching filter.</td></tr>';
+  }
+
+  load();
+  setInterval(load, 15000); // auto-refresh every 15s
+</script>
+</body>
+</html>

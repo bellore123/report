@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Risk Engine, Digital Twin & Attack Path — CyberShield Nexus</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .network-svg {
+      width: 100%;
+      height: 380px;
+      background: radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.9), #050813);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+    .svg-edge {
+      stroke: var(--border);
+      stroke-width: 2;
+      transition: stroke 0.4s ease, stroke-width 0.4s ease;
+    }
+    .svg-edge.active-attack {
+      stroke: var(--accent-red);
+      stroke-width: 3.5;
+      stroke-dasharray: 6;
+      animation: dashMove 1.5s linear infinite;
+      filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.8));
+    }
+    @keyframes dashMove {
+      to { stroke-dashoffset: -12; }
+    }
+    .node-group {
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    .node-group:hover {
+      filter: drop-shadow(0 0 10px var(--accent));
+    }
+    .node-group.compromised circle {
+      stroke: var(--accent-red);
+      fill: rgba(239, 68, 68, 0.2);
+    }
+    .node-group.target circle {
+      stroke: var(--accent-yellow);
+      fill: rgba(245, 158, 11, 0.2);
+    }
+    .ai-drawer {
+      display: none;
+      background: var(--bg-card);
+      border: 1px solid var(--accent);
+      border-radius: var(--radius);
+      padding: 22px;
+      margin-bottom: 24px;
+      box-shadow: var(--glow);
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-brand"><h1>CyberShield Nexus</h1><span>NEDI AI Cyber Command</span></div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Operations</div>
+    <a href="/dashboard.html" class="nav-item"><span class="icon">📊</span> SOC Dashboard</a>
+    <div class="nav-section-label">Managed Assets</div>
+    <a href="/servers.html" class="nav-item"><span class="icon">🖥️</span> Servers</a>
+    <a href="/firewalls.html" class="nav-item"><span class="icon">🔥</span> Firewalls</a>
+    <a href="/loadbalancers.html" class="nav-item"><span class="icon">⚖️</span> Load Balancers</a>
+    <a href="/licenses.html" class="nav-item"><span class="icon">📋</span> Licenses</a>
+    <a href="/hardware.html" class="nav-item"><span class="icon">⚙️</span> Hardware</a>
+    <div class="nav-section-label">Cyber Defense</div>
+    <a href="/incidents.html" class="nav-item"><span class="icon">🚨</span> Incidents</a>
+    <a href="/risk.html" class="nav-item active"><span class="icon">📈</span> Risk & Attack Path</a>
+    <a href="/audit-log.html" class="nav-item"><span class="icon">📜</span> Audit Log</a>
+    <a href="/users.html" id="nav-users" class="nav-item"><span class="icon">👤</span> Users & Roles</a>
+    <div class="nav-section-label">Tools</div>
+    <a href="/phishing-detector.html" class="nav-item"><span class="icon">🎣</span> Phishing Detector</a>
+  </nav>
+  <div class="sidebar-footer"><button onclick="logout()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:12px;">⏏ Sign Out</button></div>
+</aside>
+<header class="topbar">
+  <div style="display:flex;align-items:center;gap:12px;">
+    <span class="topbar-title">Risk Engine & Visual Attack Path Digital Twin</span>
+    <span class="spotlight-badge" style="background:rgba(0,212,255,0.12);border-color:rgba(0,212,255,0.4);color:var(--accent);">BFS GRAPH TRAVERSAL</span>
+  </div>
+  <div class="topbar-right">
+    <div class="topbar-user">
+      <div class="user-avatar" id="topbar-avatar">A</div>
+      <div><div style="font-weight:600;font-size:13px" id="topbar-username"></div>
+      <div style="font-size:10px;color:var(--text-muted)" id="topbar-role"></div></div>
+    </div>
+  </div>
+</header>
+<main class="main-content">
+  <div class="mb-6">
+    <h2 style="font-size:20px;font-weight:700">Digital Twin & Lateral Movement Path Predictor</h2>
+    <p style="color:var(--text-muted);font-size:13px;margin-top:2px">Interactive topology mapping of the NEDI ecosystem: BFS shortest-path adversary modeling from compromised perimeters to core databases.</p>
+  </div>
+
+  <!-- ── Interactive Digital Twin Topology Network Map (Phase 6) ── -->
+  <div class="card mb-6">
+    <div class="card-header">
+      <div>
+        <span class="card-title">🌐 NEDI Infrastructure Topology (Visual Attack Twin)</span>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Red animated line denotes shortest compromised trajectory identified by Breadth-First Search</div>
+      </div>
+      <div class="flex gap-2">
+        <button class="btn btn-sm btn-secondary" onclick="setPreset(3, 'USER', 3, 'SERVER')">🎯 Preset: Student -> Exam DB</button>
+        <button class="btn btn-sm btn-secondary" onclick="setPreset(1, 'FIREWALL', 5, 'SERVER')">🛡️ Preset: DMZ FW -> ERP</button>
+        <button class="btn btn-sm btn-primary" onclick="runBFS()">⚡ Trace Attack Path</button>
+      </div>
+    </div>
+    <div class="card-body" style="padding:16px;">
+      <div class="network-map-container" style="padding:0;">
+        <svg class="network-svg" id="topology-svg" viewBox="0 0 950 360">
+          <defs>
+            <filter id="glow-red" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#ef4444"/>
+            </filter>
+            <filter id="glow-cyan" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="#00d4ff"/>
+            </filter>
+          </defs>
+
+          <!-- Graph Edges -->
+          <!-- 1: USER 3 -> FW 1 -->
+          <line id="edge-u3-f1" class="svg-edge" x1="100" y1="180" x2="230" y2="180"/>
+          <!-- 2: FW 1 -> SRV 1 (Student Web) -->
+          <line id="edge-f1-s1" class="svg-edge" x1="230" y1="180" x2="380" y2="100"/>
+          <!-- 3: FW 1 -> SRV 5 (ERP) -->
+          <line id="edge-f1-s5" class="svg-edge" x1="230" y1="180" x2="380" y2="270"/>
+          <!-- 4: SRV 1 -> SRV 2 (Exam App) -->
+          <line id="edge-s1-s2" class="svg-edge" x1="380" y1="100" x2="550" y2="130"/>
+          <!-- 5: FW 2 (Core) -> SRV 2 -->
+          <line id="edge-f2-s2" class="svg-edge" x1="550" y1="260" x2="550" y2="130"/>
+          <!-- 6: SRV 2 -> SRV 3 (Exam DB) -->
+          <line id="edge-s2-s3" class="svg-edge" x1="550" y1="130" x2="740" y2="180"/>
+          <!-- 7: SRV 4 (Faculty) -> SRV 3 -->
+          <line id="edge-s4-s3" class="svg-edge" x1="550" y1="40" x2="740" y2="180"/>
+          <!-- 8: SRV 3 -> LIC 1 (Oracle 19c) -->
+          <line id="edge-s3-l1" class="svg-edge" x1="740" y1="180" x2="880" y2="180"/>
+
+          <!-- Nodes -->
+          <!-- Node 1: Viewer User (Entry) -->
+          <g class="node-group" id="node-u3" transform="translate(100, 180)" onclick="inspectNode('USER', 3, 'viewer (Student Account)', 'Compromised identity used as perimeter initial access pivot')">
+            <circle r="26" fill="#111827" stroke="#00d4ff" stroke-width="2.5"/>
+            <text text-anchor="middle" dy="5" fill="#fff" font-size="16">👤</text>
+            <text text-anchor="middle" dy="44" fill="#e2e8f0" font-weight="600" font-size="11">viewer</text>
+            <text text-anchor="middle" dy="56" fill="#94a3b8" font-size="9">Student (USER:3)</text>
+          </g>
+
+          <!-- Node 2: DMZ Firewall -->
+          <g class="node-group" id="node-f1" transform="translate(230, 180)" onclick="inspectNode('FIREWALL', 1, 'NEDI-DMZ-FW-01', 'Perimeter edge firewall (10.0.0.1) - Outdated firmware 200 days')">
+            <rect x="-24" y="-24" width="48" height="48" rx="8" fill="#111827" stroke="#f59e0b" stroke-width="2"/>
+            <text text-anchor="middle" dy="5" fill="#fff" font-size="16">🔥</text>
+            <text text-anchor="middle" dy="42" fill="#e2e8f0" font-weight="600" font-size="11">DMZ-FW-01</text>
+            <text text-anchor="middle" dy="54" fill="#94a3b8" font-size="9">10.0.0.1</text>
+          </g>
+
+          <!-- Node 3: Student Web Server -->
+          <g class="node-group" id="node-s1" transform="translate(380, 100)" onclick="inspectNode('SERVER', 1, 'NEDI-STUDENT-WEB-01', 'Ubuntu 22.04 LTS (10.0.1.10) - Patched 10 days ago (Low Risk)')">
+            <circle r="24" fill="#111827" stroke="#10b981" stroke-width="2"/>
+            <text text-anchor="middle" dy="5" fill="#fff" font-size="15">🖥️</text>
+            <text text-anchor="middle" dy="40" fill="#e2e8f0" font-weight="600" font-size="11">STUDENT-WEB</text>
+            <text text-anchor="middle" dy="52" fill="#94a3b8" font-size="9">10.0.1.10</text>
+          </g>
+
+          <!-- Node 4: ERP Server -->
+          <g class="node-group" id="node-s5" transform="translate(380, 270)" onclick="inspectNode('SERVER', 5, 'NEDI-ERP-APP-01', 'RHEL 8.6 (10.0.1.14) - Under maintenance window')">
+            <circle r="22" fill="#111827" stroke="#f59e0b" stroke-width="2"/>
+            <text text-anchor="middle" dy="5" fill="#fff" font-size="14">🏢</text>
+            <text text-anchor="middle" dy="38" fill="#e2e8f0" font-weight="600" font-size="11">ERP-APP</text>
+            <text text-anchor="middle" dy="50" fill="#94a3b8" font-size="9">10.0.1.14</text>
+          </g>
+
+          <!-- Node 5: Exam App Server (HIGH RISK) -->
+          <g class="node-group" id="node-s2" transform="translate(550, 130)" onclick="inspectNode('SERVER', 2, 'NEDI-EXAM-APP-01', 'CentOS 7.9 (10.0.1.11) - UNPATCHED 120 DAYS - CRITICAL LATERAL PIVOT')">
+            <circle r="26" fill="#111827" stroke="#ef4444" stroke-width="3"/>
+            <text text-anchor="middle" dy="5" fill="#fff" font-size="16">⚠️</text>
+            <text text-anchor="middle" dy="42" fill="#fca5a5" font-weight="700" font-size="11">EXAM-APP-01</text>
+            <text text-anchor="middle" dy="54" fill="#ef4444" font-size="9">UNPATCHED 120d</text>
+          </g>
+
+          <!-- Node 6: Core Firewall -->
+          <g class="node-group" id="node-f2" transform="translate(550, 260)" onclick="inspectNode('FIREWALL', 2, 'NEDI-CORE-FW-01', 'Palo Alto PA-220 (10.0.1.1) - Core Internal Segmentation')">
+            <rect x="-22" y="-22" width="44" height="44" rx="8" fill="#111827" stroke="#10b981" stroke-width="2"/>
+            <text text-anchor="middle" dy="5" fill="#fff" font-size="14">🛡️</text>
+            <text text-anchor="middle" dy="40" fill="#e2e8f0" font-size="11">CORE-FW</text>
+          </g>
+
+          <!-- Node 7: Exam DB Server (CROWN JEWEL TARGET) -->
+          <g class="node-group" id="node-s3" transform="translate(740, 180)" onclick="inspectNode('SERVER', 3, 'NEDI-EXAM-DB-01', 'Windows Server 2019 (10.0.1.12) - EXPIRED LICENSE + UNPATCHED - HIGH VALUE TARGET')">
+            <circle r="30" fill="#111827" stroke="#ef4444" stroke-width="3.5" filter="url(#glow-red)"/>
+            <text text-anchor="middle" dy="6" fill="#fff" font-size="18">💾</text>
+            <text text-anchor="middle" dy="46" fill="#fee2e2" font-weight="800" font-size="12">EXAM-DB-01</text>
+            <text text-anchor="middle" dy="58" fill="#fca5a5" font-size="9">CROWN JEWEL</text>
+          </g>
+
+          <!-- Node 8: Oracle License Dependency -->
+          <g class="node-group" id="node-l1" transform="translate(880, 180)" onclick="inspectNode('LICENSE', 1, 'Oracle Database 19c', 'Expired enterprise license (Compliance breach +30 risk points)')">
+            <rect x="-22" y="-22" width="44" height="44" rx="8" fill="#111827" stroke="#f59e0b" stroke-width="2"/>
+            <text text-anchor="middle" dy="5" fill="#fff" font-size="14">📋</text>
+            <text text-anchor="middle" dy="40" fill="#f59e0b" font-weight="600" font-size="10">Oracle 19c</text>
+            <text text-anchor="middle" dy="52" fill="#ef4444" font-size="9">EXPIRED</text>
+          </g>
+        </svg>
+      </div>
+
+      <!-- Node Inspection Callout -->
+      <div id="node-inspector" style="margin-top:12px;background:var(--bg-card2);border:1px solid var(--border);border-radius:8px;padding:12px 18px;display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <span style="color:var(--accent);font-weight:700;font-size:12px;" id="inspect-type">SELECTED ASSET</span>: 
+          <strong style="color:var(--text-primary);font-size:13px;" id="inspect-name">NEDI-EXAM-APP-01</strong>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:2px;" id="inspect-details">Click any node on the topology map above to inspect security posture and lateral vulnerability.</div>
+        </div>
+        <button class="btn btn-sm btn-primary" id="btn-ai-explain" onclick="openAiExplainModal(2)">🤖 Explain AI Risk</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Explainable AI Recommendation Drawer (Phase 5 Feature) ── -->
+  <div class="ai-drawer" id="ai-drawer">
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center gap-2">
+        <span class="spotlight-badge" style="background:rgba(0,212,255,0.15);border-color:rgba(0,212,255,0.4);color:var(--accent);">🤖 NIST AI RMF & MITRE ATT&CK EXPLAINABILITY</span>
+        <h3 style="font-size:16px;font-weight:800;color:var(--text-primary);" id="ai-drawer-title">Threat Assessment & Mitigation Rationale</h3>
+      </div>
+      <button class="btn btn-sm btn-secondary" onclick="closeAiDrawer()">✕ Close</button>
+    </div>
+
+    <div style="font-size:13px;color:var(--text-primary);line-height:1.6;margin-bottom:18px;background:rgba(0,0,0,0.25);padding:14px;border-radius:8px;border-left:3px solid var(--accent);" id="ai-exec-summary">
+      <!-- Executive Summary -->
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;">
+      <!-- MITRE ATT&CK Alignment -->
+      <div style="background:var(--bg-card2);border:1px solid var(--border);border-radius:8px;padding:16px;">
+        <div style="font-weight:700;font-size:12px;text-transform:uppercase;color:var(--accent-red);margin-bottom:10px;display:flex;align-items:center;gap:6px;">
+          <span>🎯 MITRE ATT&CK Enterprise TTPs</span>
+        </div>
+        <div id="ai-mitre-list" style="display:flex;flex-direction:column;gap:8px;">
+          <!-- Injected by JS -->
+        </div>
+      </div>
+
+      <!-- Prioritized Mitigation Action Plan -->
+      <div style="background:var(--bg-card2);border:1px solid var(--border);border-radius:8px;padding:16px;">
+        <div style="font-weight:700;font-size:12px;text-transform:uppercase;color:var(--accent-green);margin-bottom:10px;display:flex;align-items:center;gap:6px;">
+          <span>🛡️ Prioritized Action Plan & Zero Trust Remediation</span>
+        </div>
+        <div id="ai-actions-list" style="display:flex;flex-direction:column;gap:8px;">
+          <!-- Injected by JS -->
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);padding-top:12px;font-size:12px;color:var(--text-muted);">
+      <div>Projected Post-Remediation Posture: <strong style="color:var(--accent-green)" id="ai-projected-score">15 / 100 (Safe)</strong></div>
+      <div id="ai-confidence">Confidence: 94% (Deterministic Rule Graph Correlation)</div>
+    </div>
+  </div>
+
+  <!-- ── BFS Query Console ── -->
+  <div class="card mb-6">
+    <div class="card-header">
+      <span class="card-title">🔍 Attack Path Traversal Parameters</span>
+    </div>
+    <div class="card-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:12px;align-items:end">
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Start Asset ID (Compromised)</label>
+          <input class="form-control" id="bfs-start-id" value="3" type="number">
+        </div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Start Asset Type</label>
+          <select class="form-control" id="bfs-start-type">
+            <option value="USER" selected>USER</option>
+            <option value="SERVER">SERVER</option>
+            <option value="FIREWALL">FIREWALL</option>
+            <option value="HARDWARE">HARDWARE</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Target Asset ID (High-Value)</label>
+          <input class="form-control" id="bfs-target-id" value="3" type="number">
+        </div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Target Asset Type</label>
+          <select class="form-control" id="bfs-target-type">
+            <option value="SERVER" selected>SERVER</option>
+            <option value="USER">USER</option>
+            <option value="FIREWALL">FIREWALL</option>
+            <option value="HARDWARE">HARDWARE</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="runBFS()">Find Path →</button>
+      </div>
+
+      <div id="bfs-result" style="margin-top:20px;display:none">
+        <div id="bfs-not-found" class="alert alert-success" style="display:none">✅ Target node is completely isolated. No lateral movement path exists.</div>
+        <div id="bfs-found" style="display:none">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <span class="badge badge-red" style="font-size:12px;padding:5px 12px">⚠ LATERAL MOVEMENT PATH DETECTED</span>
+              <span style="margin-left:10px;color:var(--text-muted);font-size:12px;" id="bfs-hops"></span>
+            </div>
+            <button class="btn btn-sm btn-danger" id="btn-bfs-incident" onclick="evaluateTarget()">🚨 Create Incident for Target Server</button>
+          </div>
+          <div class="attack-path" id="bfs-path-display"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Server Risk Scores Table ── -->
+  <div class="card mb-6">
+    <div class="card-header">
+      <span class="card-title">📊 NEDI Infrastructure Risk Table</span>
+      <button class="btn btn-sm btn-primary" onclick="loadRisks()">🔄 Recalculate</button>
+    </div>
+    <div class="table-wrapper">
+      <div id="risk-loading"><div class="spinner"></div></div>
+      <table id="risk-table" style="display:none">
+        <thead><tr>
+          <th>Asset</th><th>Risk Score</th><th>Posture</th><th>Risk Factors Breakdown</th><th>AI Explainability & Response</th>
+        </tr></thead>
+        <tbody id="risk-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<div id="toast-container"></div>
+<script src="/js/auth.js"></script>
+<script>
+  requireAuth(); renderTopbarUser();
+  let bfsResult = null;
+  let currentInspectedServerId = 2;
+
+  const serverNames = {
+    1: 'NEDI-STUDENT-WEB-01',
+    2: 'NEDI-EXAM-APP-01',
+    3: 'NEDI-EXAM-DB-01',
+    4: 'NEDI-FACULTY-WEB-01',
+    5: 'NEDI-ERP-APP-01'
+  };
+
+  function setPreset(startId, startType, targetId, targetType) {
+    document.getElementById('bfs-start-id').value = startId;
+    document.getElementById('bfs-start-type').value = startType;
+    document.getElementById('bfs-target-id').value = targetId;
+    document.getElementById('bfs-target-type').value = targetType;
+    runBFS();
+  }
+
+  function inspectNode(type, id, name, details) {
+    document.getElementById('inspect-type').textContent = `${type} #${id}`;
+    document.getElementById('inspect-name').textContent = name;
+    document.getElementById('inspect-details').textContent = details;
+    if (type === 'SERVER') {
+      currentInspectedServerId = id;
+      document.getElementById('btn-ai-explain').style.display = '';
+      document.getElementById('btn-ai-explain').setAttribute('onclick', `openAiExplainModal(${id})`);
+    } else {
+      document.getElementById('btn-ai-explain').style.display = 'none';
+    }
+  }
+
+  async function loadRisks() {
+    try {
+      const risks = await apiGet('/risk/servers');
+      const isA = isAdmin();
+      document.getElementById('risk-loading').style.display = 'none';
+      document.getElementById('risk-table').style.display = '';
+      document.getElementById('risk-body').innerHTML = Object.entries(risks).map(([id, r]) => {
+        const sName = serverNames[id] || `Server #${id}`;
+        return `
+        <tr>
+          <td>
+            <strong>${sName}</strong>
+            <div style="font-size:11px;color:var(--text-muted)">ID: ${id}</div>
+          </td>
+          <td>${riskBar(r.score)}</td>
+          <td>${severityBadge(r.severity)}</td>
+          <td style="font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--text-muted)">
+            ${Object.entries(r.breakdown).map(([k,v]) => `<span class="badge ${k.includes('attack') || k.includes('unpatched') ? 'badge-red' : 'badge-yellow'}">${k}: +${v}</span>`).join(' ')}
+          </td>
+          <td>
+            <div class="flex gap-2">
+              <button class="btn btn-sm btn-secondary" onclick="openAiExplainModal(${id})">🤖 AI Explain</button>
+              ${isA ? `<button class="btn btn-sm btn-danger" onclick="evaluateServer(${id})">⚡ Evaluate</button>` : ''}
+            </div>
+          </td>
+        </tr>`;
+      }).join('');
+    } catch(e) { toast('Failed: ' + e.message, 'error'); }
+  }
+
+  async function openAiExplainModal(serverId) {
+    try {
+      toast('Fetching explainable AI recommendations...', 'info');
+      const ai = await apiGet(`/risk/ai-analysis/${serverId}`);
+      document.getElementById('ai-drawer-title').textContent = `AI Risk Explainability: ${ai.assetName} (Score: ${ai.riskScore}/100)`;
+      document.getElementById('ai-exec-summary').textContent = ai.executiveSummary;
+      document.getElementById('ai-projected-score').textContent = `${ai.projectedScorePostRemediation} / 100 (Projected)`;
+      document.getElementById('ai-confidence').textContent = `Confidence: ${ai.confidenceScore}`;
+
+      // MITRE List
+      const mitreEl = document.getElementById('ai-mitre-list');
+      if (ai.mitreAttackMappings && ai.mitreAttackMappings.length > 0) {
+        mitreEl.innerHTML = ai.mitreAttackMappings.map(m => `
+          <div style="background:rgba(0,0,0,0.2);border-left:3px solid var(--accent-red);padding:8px 10px;border-radius:4px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <strong style="font-family:'JetBrains Mono',monospace;color:var(--accent-red);font-size:12px;">${m.techniqueId} - ${m.techniqueName}</strong>
+              <span class="badge badge-red" style="font-size:10px;">${m.tactic}</span>
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:3px;">${m.description}</div>
+          </div>
+        `).join('');
+      } else {
+        mitreEl.innerHTML = `<div style="color:var(--accent-green);font-size:12px;">✅ No adversary tactics active.</div>`;
+      }
+
+      // Actions List
+      const actionsEl = document.getElementById('ai-actions-list');
+      if (ai.prioritizedActions && ai.prioritizedActions.length > 0) {
+        actionsEl.innerHTML = ai.prioritizedActions.map(a => `
+          <div style="background:rgba(0,0,0,0.2);border-left:3px solid var(--accent-green);padding:8px 10px;border-radius:4px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span class="badge ${a.priority === 'IMMEDIATE' ? 'badge-red' : 'badge-yellow'}" style="font-size:10px;">${a.priority}</span>
+              <span style="font-size:11px;color:var(--accent-green);font-weight:600;">${a.estimatedImpact}</span>
+            </div>
+            <div style="font-size:12px;color:var(--text-primary);margin-top:4px;">${a.action}</div>
+            <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">Lead Team: ${a.ownerTeam}</div>
+          </div>
+        `).join('');
+      }
+
+      document.getElementById('ai-drawer').style.display = 'block';
+      document.getElementById('ai-drawer').scrollIntoView({ behavior: 'smooth' });
+
+    } catch(e) {
+      toast('Failed to load AI explainability: ' + e.message, 'error');
+    }
+  }
+
+  function closeAiDrawer() {
+    document.getElementById('ai-drawer').style.display = 'none';
+  }
+
+  async function evaluateServer(id) {
+    try {
+      const result = await apiPost(`/risk/evaluate/server/${id}`, {});
+      if (result.incidentCreated) {
+        toast(`Incident #${result.incidentId} created! Risk score: ${result.score}`, 'error');
+      } else {
+        toast(`Score: ${result.score}/100 — below auto-creation threshold`, 'info');
+      }
+      loadRisks();
+    } catch(e) { toast('Error: ' + e.message, 'error'); }
+  }
+
+  function resetTopologyEdges() {
+    document.querySelectorAll('.svg-edge').forEach(edge => {
+      edge.classList.remove('active-attack');
+    });
+  }
+
+  function highlightEdge(id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.add('active-attack');
+  }
+
+  async function runBFS() {
+    const startId   = document.getElementById('bfs-start-id').value;
+    const startType = document.getElementById('bfs-start-type').value;
+    const targetId  = document.getElementById('bfs-target-id').value;
+    const targetType = document.getElementById('bfs-target-type').value;
+
+    resetTopologyEdges();
+
+    try {
+      bfsResult = await apiGet(`/graph/attack-path?startId=${startId}&startType=${startType}&targetId=${targetId}&targetType=${targetType}`);
+      document.getElementById('bfs-result').style.display = '';
+
+      if (!bfsResult.found) {
+        document.getElementById('bfs-not-found').style.display = 'flex';
+        document.getElementById('bfs-found').style.display = 'none';
+        return;
+      }
+
+      document.getElementById('bfs-not-found').style.display = 'none';
+      document.getElementById('bfs-found').style.display = '';
+      const btnBfs = document.getElementById('btn-bfs-incident');
+      if (btnBfs) btnBfs.style.display = isAdmin() ? '' : 'none';
+      document.getElementById('bfs-hops').textContent = `${bfsResult.hops} lateral hops via zero-trust perimeter breach`;
+
+      const path = bfsResult.path;
+      document.getElementById('bfs-path-display').innerHTML = path.map((node, idx) => `
+        <span class="path-node ${idx === 0 ? 'compromised' : idx === path.length-1 ? 'target' : ''}">${node}</span>
+        ${idx < path.length-1 ? '<span class="path-arrow">→</span>' : ''}
+      `).join('');
+
+      // Animate corresponding SVG edges
+      if (startId == 3 && startType === 'USER' && targetId == 3 && targetType === 'SERVER') {
+        highlightEdge('edge-u3-f1');
+        highlightEdge('edge-f1-s1');
+        highlightEdge('edge-s1-s2');
+        highlightEdge('edge-s2-s3');
+      } else if (startId == 1 && startType === 'FIREWALL' && targetId == 5 && targetType === 'SERVER') {
+        highlightEdge('edge-f1-s5');
+      }
+
+      toast(`Shortest path discovered: ${bfsResult.hops} hops. Visual attack twin highlighted in red.`, 'info');
+
+    } catch(e) { toast('BFS failed: ' + e.message, 'error'); }
+  }
+
+  async function evaluateServer(id) {
+    try {
+      const result = await apiPost(`/risk/evaluate/server/${id}`, {});
+      if (result.incidentCreated) {
+        toast(`Incident created for server #${id}! Score: ${result.score}`, 'error');
+      } else {
+        toast(`Server #${id} evaluated. Score: ${result.score}/100`, 'info');
+      }
+      loadRisks();
+    } catch(e) { toast('Error: ' + e.message, 'error'); }
+  }
+
+  async function evaluateTarget() {
+    if (!bfsResult || !bfsResult.targetId) return;
+    try {
+      const result = await apiPost(`/risk/evaluate/server/${bfsResult.targetId}`, {});
+      if (result.incidentCreated) {
+        toast(`Incident created for target #${bfsResult.targetId}! Score: ${result.score}`, 'error');
+      } else {
+        toast(`Score: ${result.score}/100 — below threshold`, 'info');
+      }
+      loadRisks();
+    } catch(e) { toast('Error: ' + e.message, 'error'); }
+  }
+
+  loadRisks();
+</script>
+</body>
+</html>
+

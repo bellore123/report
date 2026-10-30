@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ERP / Admin | College E – Central Region</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Segoe UI',sans-serif; background:#0f172a; color:#e2e8f0; min-height:100vh; }
+    .risk-strip { background:#7f1d1d;padding:7px 40px;text-align:center;font-size:11px;font-weight:700;color:#fecaca;animation:bg-pulse 2s ease-in-out infinite; }
+    @keyframes bg-pulse { 0%,100%{background:#7f1d1d}50%{background:#991b1b} }
+    header { background:#1a0a0a;border-bottom:3px solid #dc2626;padding:0 40px; }
+    .header-inner { max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:64px; }
+    .logo { display:flex;align-items:center;gap:10px;text-decoration:none;color:#fff; }
+    .logo-icon { width:38px;height:38px;background:#dc2626;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px; }
+    .logo h1 { font-size:15px;font-weight:700; }
+    nav a { color:#fca5a5;text-decoration:none;margin-left:20px;font-size:13px; }
+
+    .alert-banner { background:rgba(239,68,68,0.12);border-bottom:1px solid rgba(239,68,68,0.35);padding:10px 40px; }
+    .alert-inner { max-width:1200px;margin:0 auto;font-size:12px;color:#fca5a5;display:flex;align-items:center;gap:10px; }
+
+    .main { max-width:1200px;margin:0 auto;padding:36px 40px;display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start; }
+
+    /* Left panel */
+    .left-panel h2 { font-size:24px;font-weight:800;color:#fff;margin-bottom:14px; }
+    .left-panel h2 span { color:#dc2626; }
+
+    .erp-risk-card { background:rgba(239,68,68,0.08);border:2px solid rgba(239,68,68,0.35);border-radius:10px;padding:16px;margin-bottom:16px; }
+    .erp-risk-card h4 { font-size:12px;font-weight:700;color:#dc2626;margin-bottom:10px;display:flex;align-items:center;gap:6px; }
+    .risk-row { display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px; }
+    .risk-row .lbl { color:#94a3b8; }
+    .risk-row .val { font-family:monospace;color:#e2e8f0; }
+
+    .erp-modules { display:grid;gap:8px; }
+    .erp-mod { background:#1e293b;border:1px solid #334155;border-radius:8px;padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all 0.2s; }
+    .erp-mod:hover { border-color:#dc2626;background:#1a0a0a; }
+    .erp-mod .mod-icon { font-size:18px; }
+    .erp-mod h4 { font-size:12px;font-weight:700; }
+    .erp-mod p { font-size:10px;color:#64748b; }
+
+    /* Right panel — login */
+    .login-card { background:#1e293b;border:2px solid #334155;border-radius:14px;padding:34px; }
+    .login-card h3 { font-size:17px;font-weight:700;margin-bottom:6px; }
+    .login-card .sub { font-size:12px;color:#64748b;margin-bottom:22px; }
+    .form-group { margin-bottom:15px; }
+    label { font-size:12px;font-weight:600;color:#94a3b8;display:block;margin-bottom:6px; }
+    input { width:100%;background:#0a1628;border:1px solid #334155;border-radius:8px;padding:11px 14px;color:#e2e8f0;font-size:13px;outline:none;transition:border-color 0.2s; }
+    input:focus { border-color:#dc2626; }
+    .btn-admin { width:100%;background:linear-gradient(135deg,#dc2626,#991b1b);color:#fff;border:none;border-radius:8px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;margin-top:4px; }
+    #result-box { margin-top:14px;padding:12px;border-radius:8px;font-size:13px;display:none; }
+    #result-box.danger  { background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.4);color:#ef4444; }
+    #result-box.success { background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.4);color:#10b981; }
+
+    /* ERP status table */
+    .status-table { width:100%;border-collapse:collapse;font-size:12px;margin-top:16px; }
+    .status-table th { padding:8px 12px;text-align:left;color:#64748b;font-weight:600;border-bottom:1px solid #334155; }
+    .status-table td { padding:8px 12px;border-bottom:1px solid #1e293b;color:#94a3b8; }
+    .status-table td:first-child { color:#e2e8f0; }
+
+    footer { background:#0a0a0a;border-top:1px solid #1e293b;padding:14px 40px;text-align:center;font-size:11px;color:#475569;margin-top:32px; }
+  </style>
+</head>
+<body>
+
+<div class="risk-strip">🔴 CRITICAL: College E ERP/Admin panel is on NEDI-ERP-APP-01 (10.0.1.14) — MAINTENANCE MODE — All access triggers SOC alerts</div>
+
+<header>
+  <div class="header-inner">
+    <a href="index.html" class="logo">
+      <div class="logo-icon">🏢</div>
+      <div>
+        <h1>College E — ERP / Administration</h1>
+        <span style="font-size:10px;color:#fca5a5;">Restricted Access · Bhopal Campus</span>
+      </div>
+    </a>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="login.html">Student Login</a>
+      <a href="exam.html">Exam Portal</a>
+      <a href="faculty.html">Faculty</a>
+    </nav>
+  </div>
+</header>
+
+<div class="alert-banner">
+  <div class="alert-inner">
+    ⚠️ <b>RESTRICTED ACCESS:</b> College E Admin/ERP is under active monitoring. This institution is currently flagged HIGH RISK by CyberShield NEDI SOC. All access attempts are logged, risk-scored, and trigger real-time dashboard alerts.
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- Left: ERP modules + server info -->
+  <div class="left-panel">
+    <h2>🏢 ERP / <span>Admin</span> Panel</h2>
+
+    <div class="erp-risk-card">
+      <h4>🎯 HIGH-VALUE TARGET — SOC ALERT</h4>
+      <div class="risk-row"><span class="lbl">ERP Server</span><span class="val">NEDI-ERP-APP-01</span></div>
+      <div class="risk-row"><span class="lbl">IP Address</span><span class="val">10.0.1.14</span></div>
+      <div class="risk-row"><span class="lbl">OS</span><span class="val">RHEL 8.6</span></div>
+      <div class="risk-row"><span class="lbl">Status</span><span class="val" style="color:#f97316;">⚠️ MAINTENANCE</span></div>
+      <div class="risk-row"><span class="lbl">Institution</span><span class="val" style="color:#ef4444;">COL-E-CENTRAL HIGH RISK</span></div>
+      <div class="risk-row"><span class="lbl">Access here triggers</span><span class="val" style="color:#dc2626;">RECON + incident</span></div>
+    </div>
+
+    <div class="erp-modules">
+      <div class="erp-mod" onclick="triggerERP('admissions')">
+        <span class="mod-icon">📄</span>
+        <div><h4>Admissions Management</h4><p>Applicant records and enrollment status</p></div>
+      </div>
+      <div class="erp-mod" onclick="triggerERP('finance')">
+        <span class="mod-icon">💰</span>
+        <div><h4>Finance & Accounts</h4><p>Fee collection, salaries and budget</p></div>
+      </div>
+      <div class="erp-mod" onclick="triggerERP('hr')">
+        <span class="mod-icon">👥</span>
+        <div><h4>HR & Payroll</h4><p>Staff records, leave management</p></div>
+      </div>
+      <div class="erp-mod" onclick="triggerERP('infrastructure')">
+        <span class="mod-icon">🏗️</span>
+        <div><h4>Infrastructure</h4><p>Assets, maintenance and procurement</p></div>
+      </div>
+      <div class="erp-mod" onclick="triggerERP('reports')">
+        <span class="mod-icon">📊</span>
+        <div><h4>Institutional Reports</h4><p>NAAC, NIRF, audit and compliance exports</p></div>
+      </div>
+    </div>
+
+    <table class="status-table">
+      <thead><tr><th>Module</th><th>Server</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Admissions</td><td style="font-family:monospace;font-size:11px;">10.0.1.14</td><td><span style="color:#f97316;">Maintenance</span></td></tr>
+        <tr><td>Finance</td><td style="font-family:monospace;font-size:11px;">10.0.1.14</td><td><span style="color:#f97316;">Maintenance</span></td></tr>
+        <tr><td>Exam DB</td><td style="font-family:monospace;font-size:11px;">10.0.1.12</td><td><span style="color:#ef4444;">HIGH RISK</span></td></tr>
+        <tr><td>Student Portal</td><td style="font-family:monospace;font-size:11px;">10.0.1.10</td><td><span style="color:#10b981;">Running</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Right: Admin login -->
+  <div class="login-card">
+    <h3>🔒 Administrator / ERP Login</h3>
+    <p class="sub">Authorized personnel only. All access monitored and logged by CyberShield NEDI SOC.</p>
+
+    <form onsubmit="handleAdminLogin(event)">
+      <div class="form-group">
+        <label>Admin Username</label>
+        <input type="text" id="admin-user" placeholder="principal / registrar / admin">
+      </div>
+      <div class="form-group">
+        <label>Admin Password</label>
+        <input type="password" id="admin-pass" placeholder="••••••••">
+      </div>
+      <div class="form-group">
+        <label>ERP Module</label>
+        <input type="text" id="erp-module" placeholder="e.g. finance, admissions, hr">
+      </div>
+      <button type="submit" class="btn-admin">🔓 Access ERP System →</button>
+      <div id="result-box"></div>
+    </form>
+
+    <div style="margin-top:16px;padding:12px;background:rgba(239,68,68,0.06);border:1px dashed rgba(239,68,68,0.3);border-radius:8px;font-size:11px;color:#94a3b8;text-align:center;">
+      🛡️ Every keystroke on this panel is monitored.<br>
+      SQLi / Brute Force → <a href="http://localhost:8081/dashboard.html" target="_blank" style="color:#dc2626;">CyberShield Dashboard alert</a> in &lt;3 seconds.
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  College E Admin/ERP · Server: NEDI-ERP-APP-01 (10.0.1.14) · Status: MAINTENANCE · Institution: HIGH RISK · Protected by CyberShield NEDI SOC
+</footer>
+
+<script src="college-beacon.js"></script>
+<script>
+  // ERP/admin page access → RECON event (highest base risk)
+  autoBeacon('COL-E-CENTRAL', 'College E - Central Region', 'erp', 'RECON');
+
+  async function handleAdminLogin(e) {
+    e.preventDefault();
+    const user   = document.getElementById('admin-user').value;
+    const pass   = document.getElementById('admin-pass').value;
+    const module = document.getElementById('erp-module').value;
+    const box    = document.getElementById('result-box');
+
+    const result = await formBeacon('COL-E-CENTRAL', 'College E - Central Region', 'erp', user, pass + ' ' + module);
+    if (result) showDetectionToast(result);
+
+    box.style.display = 'block';
+    box.className = 'danger';
+    box.innerHTML = result
+      ? `🚫 Access Denied. <b>${result.eventType}</b> detected.<br>
+         Risk Score: <b>${result.riskScore}/100</b> · Severity: <b>${result.severity}</b><br>
+         ${result.incidentCreated
+           ? `🚨 Incident <a href="http://localhost:8081/incidents.html" target="_blank" style="color:#ef4444;">#${result.incidentId}</a> auto-created on CyberShield SOC.`
+           : 'Event logged on CyberShield SOC.'}`
+      : '🚫 Access Denied. Invalid credentials.';
+  }
+
+  async function triggerERP(mod) {
+    const result = await sendBeacon({
+      institutionCode:'COL-E-CENTRAL', collegeName:'College E - Central Region',
+      page:'erp', eventType:'RECON', inputPayload:mod, attackerIp:'auto-detected'
+    });
+    if (result) showDetectionToast(result);
+    alert(`ERP module "${mod}" accessed on server 10.0.1.14. CyberShield has logged this event with score ${result?.riskScore ?? '?'}/100.`);
+  }
+</script>
+</body>
+</html>

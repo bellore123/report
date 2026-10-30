@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Login | College A – South Campus</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Segoe UI',sans-serif; background:#0f172a; color:#e2e8f0; min-height:100vh;
+           display:flex; flex-direction:column; }
+    header { background:#0f2744; border-bottom:3px solid #2563eb; padding:0 40px; }
+    .header-inner { max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:64px; }
+    .logo { display:flex;align-items:center;gap:10px;text-decoration:none;color:#fff; }
+    .logo-icon { width:38px;height:38px;background:#2563eb;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px; }
+    .logo-text h1 { font-size:15px;font-weight:700; }
+    .logo-text span { font-size:10px;color:#93c5fd; }
+    nav a { color:#93c5fd;text-decoration:none;margin-left:20px;font-size:13px; }
+
+    /* Page layout */
+    .page { flex:1;display:flex;align-items:center;justify-content:center;padding:40px 20px; }
+    .login-wrap { display:grid;grid-template-columns:1fr 1fr;gap:40px;max-width:900px;width:100%;align-items:center; }
+
+    /* Info panel */
+    .info-panel { padding:20px; }
+    .info-panel h2 { font-size:28px;font-weight:800;color:#fff;margin-bottom:12px; }
+    .info-panel h2 span { color:#3b82f6; }
+    .info-panel p { color:#94a3b8;font-size:14px;line-height:1.7;margin-bottom:20px; }
+    .server-info { background:#1e293b;border:1px solid #334155;border-radius:8px;padding:14px;font-size:12px; }
+    .server-info-title { color:#3b82f6;font-weight:700;margin-bottom:8px; }
+    .server-row { display:flex;justify-content:space-between;color:#94a3b8;margin-bottom:4px; }
+    .server-row span:last-child { color:#e2e8f0;font-family:monospace; }
+
+    /* Login form */
+    .login-card { background:#1e293b;border:1px solid #334155;border-radius:14px;padding:36px;max-width:400px;width:100%; }
+    .login-card h3 { font-size:18px;font-weight:700;margin-bottom:6px; }
+    .login-card .sub { font-size:12px;color:#64748b;margin-bottom:28px; }
+    .form-group { margin-bottom:18px; }
+    label { font-size:12px;font-weight:600;color:#94a3b8;display:block;margin-bottom:6px; }
+    input { width:100%;background:#0f172a;border:1px solid #334155;border-radius:8px;padding:11px 14px;
+            color:#e2e8f0;font-size:14px;outline:none;transition:border-color 0.2s; }
+    input:focus { border-color:#3b82f6; }
+    .btn-login { width:100%;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border:none;
+                 border-radius:8px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;
+                 transition:opacity 0.2s;margin-top:6px; }
+    .btn-login:hover { opacity:0.9; }
+    .btn-login:disabled { opacity:0.5;cursor:not-allowed; }
+    .divider { text-align:center;color:#334155;font-size:12px;margin:16px 0;position:relative; }
+    .divider::before,.divider::after { content:'';position:absolute;top:50%;width:42%;height:1px;background:#334155; }
+    .divider::before { left:0; } .divider::after { right:0; }
+    .links { display:flex;justify-content:space-between;font-size:12px;margin-top:14px; }
+    .links a { color:#3b82f6;text-decoration:none; }
+
+    /* Result box */
+    #result-box { margin-top:16px;padding:12px 16px;border-radius:8px;font-size:13px;display:none; }
+    #result-box.success { background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.4);color:#10b981; }
+    #result-box.danger  { background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.4);color:#ef4444; }
+    #result-box.warning { background:rgba(249,115,22,0.1);border:1px solid rgba(249,115,22,0.4);color:#fb923c; }
+
+    footer { background:#0a1628;border-top:1px solid #1e293b;padding:16px 40px;text-align:center;font-size:11px;color:#475569; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a href="index.html" class="logo">
+      <div class="logo-icon">🎓</div>
+      <div class="logo-text">
+        <h1>College A – South Campus</h1>
+        <span>Chennai, Tamil Nadu</span>
+      </div>
+    </a>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="exam.html">Exam Portal</a>
+      <a href="faculty.html">Faculty</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page">
+  <div class="login-wrap">
+
+    <!-- Info Panel -->
+    <div class="info-panel">
+      <h2>Student <span>Portal Login</span></h2>
+      <p>Access your academic records, attendance reports, internal marks, fee status, and digital services. Use your institutional ID to log in.</p>
+      <div class="server-info">
+        <div class="server-info-title">🖥️ Connection Info (SOC Visible)</div>
+        <div class="server-row"><span>Server</span><span>NEDI-STUDENT-WEB-01</span></div>
+        <div class="server-row"><span>IP Address</span><span>10.0.1.10</span></div>
+        <div class="server-row"><span>Firewall</span><span>NEDI-DMZ-FW-01</span></div>
+        <div class="server-row"><span>Status</span><span style="color:#10b981;">✅ RUNNING</span></div>
+        <div class="server-row"><span>Institution</span><span>COL-A-SOUTH</span></div>
+        <div style="margin-top:10px;font-size:10px;color:#475569;">
+          🛡️ This page is monitored by CyberShield NEDI SOC.<br>
+          All login attempts are logged and analyzed in real time.
+        </div>
+      </div>
+    </div>
+
+    <!-- Login Form -->
+    <div class="login-card">
+      <h3>🔑 Student Login</h3>
+      <p class="sub">Use your Roll Number and DOB (DD/MM/YYYY) as password</p>
+
+      <form id="login-form" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label>Roll Number / Student ID</label>
+          <input type="text" id="username" placeholder="e.g. 21CSE0042" autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="password" placeholder="••••••••">
+        </div>
+        <button type="submit" class="btn-login" id="login-btn">Login to Portal →</button>
+        <div id="result-box"></div>
+      </form>
+
+      <div class="divider">or</div>
+      <div class="links">
+        <a href="#">Forgot Password?</a>
+        <a href="#">First Time Login?</a>
+      </div>
+      <div style="margin-top:16px;font-size:11px;color:#475569;text-align:center;">
+        Problems? Contact: helpdesk@collegea.edu.in
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  College A – South Campus, Chennai · Server: NEDI-STUDENT-WEB-01 (10.0.1.10) · Protected by CyberShield NEDI SOC
+</footer>
+
+<script src="college-beacon.js"></script>
+<script>
+  // Page load beacon
+  autoBeacon('COL-A-SOUTH', 'College A - South Campus', 'login', 'PAGE_ACCESS');
+
+  async function handleLogin(e) {
+    e.preventDefault();
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    const btn      = document.getElementById('login-btn');
+    const box      = document.getElementById('result-box');
+
+    if (!username || !password) {
+      box.style.display = 'block';
+      box.className = 'danger';
+      box.textContent = '⚠️ Please enter your Roll Number and Password.';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Verifying...';
+    box.style.display = 'none';
+
+    // Send beacon to CyberShield — detect SQLi/XSS/brute force
+    const result = await formBeacon('COL-A-SOUTH', 'College A - South Campus', 'login', username, password);
+
+    // Show detection toast if CyberShield flagged this
+    if (result) showDetectionToast(result);
+
+    // Simulate auth check
+    await new Promise(r => setTimeout(r, 800));
+
+    box.style.display = 'block';
+
+    if (result && result.riskScore >= 60) {
+      // High risk — show security block
+      box.className = 'danger';
+      box.innerHTML = `
+        🚫 <b>Security Alert:</b> Suspicious input detected.<br>
+        <span style="font-size:11px">Risk Score: <b>${result.riskScore}/100</b> · Attack Type: <b>${result.eventType}</b><br>
+        This incident has been logged by <a href="http://localhost:8081/incidents.html" target="_blank" style="color:#ef4444">CyberShield SOC</a>.</span>
+      `;
+    } else if (username.toLowerCase().includes('admin') && password === 'admin') {
+      box.className = 'success';
+      box.textContent = '✅ Login successful! Redirecting to student dashboard...';
+    } else {
+      box.className = 'warning';
+      box.textContent = '❌ Invalid Roll Number or Password. Please try again.';
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Login to Portal →';
+  }
+</script>
+</body>
+</html>

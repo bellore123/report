@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phishing Detector — CyberShield Nexus</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-brand"><h1>CyberShield Nexus</h1><span>NEDI AI Cyber Command</span></div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <a href="/dashboard.html" class="nav-item"><span class="icon">📊</span> Dashboard</a>
+    <div class="nav-section-label">Assets</div>
+    <a href="/servers.html" class="nav-item"><span class="icon">🖥️</span> Servers</a>
+    <a href="/firewalls.html" class="nav-item"><span class="icon">🔥</span> Firewalls</a>
+    <a href="/loadbalancers.html" class="nav-item"><span class="icon">⚖️</span> Load Balancers</a>
+    <a href="/licenses.html" class="nav-item"><span class="icon">📋</span> Licenses</a>
+    <a href="/hardware.html" class="nav-item"><span class="icon">⚙️</span> Hardware</a>
+    <div class="nav-section-label">Security</div>
+    <a href="/incidents.html" class="nav-item"><span class="icon">🚨</span> Incidents</a>
+    <a href="/risk.html" class="nav-item"><span class="icon">📈</span> Risk & Attack Path</a>
+    <a href="/audit-log.html" class="nav-item"><span class="icon">📜</span> Audit Log</a>
+    <a href="/users.html" id="nav-users" class="nav-item"><span class="icon">👤</span> Users & Roles</a>
+    <div class="nav-section-label">Tools</div>
+    <a href="/phishing-detector.html" class="nav-item active"><span class="icon">🎣</span> Phishing Detector</a>
+  </nav>
+  <div class="sidebar-footer"><button onclick="logout()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:12px;">⏏ Sign Out</button></div>
+</aside>
+<header class="topbar">
+  <span class="topbar-title">Phishing & Scam Link Detector</span>
+  <div class="topbar-right">
+    <div class="topbar-user">
+      <div class="user-avatar" id="topbar-avatar">A</div>
+      <div><div style="font-weight:600;font-size:13px" id="topbar-username"></div>
+      <div style="font-size:10px;color:var(--text-muted)" id="topbar-role"></div></div>
+    </div>
+  </div>
+</header>
+<main class="main-content">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h2 style="font-size:20px;font-weight:700">Phishing & Scam Link Detector</h2>
+      <p style="color:var(--text-muted);font-size:13px;margin-top:2px">Paste any link before you click it — 12 offline heuristic checks, no data leaves this server.</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-header">
+      <span class="card-title">Single URL</span>
+    </div>
+    <div style="padding:20px">
+      <div style="display:flex;gap:10px">
+        <input class="form-control" id="url-input" placeholder="e.g. http://paypal-secure-login.tk/verify?id=123" style="flex:1" onkeydown="if(event.key==='Enter') analyzeSingle()">
+        <button class="btn btn-primary" onclick="analyzeSingle()">Analyze</button>
+      </div>
+      <div id="single-result" style="margin-top:16px"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Batch Analysis (multiple URLs)</span>
+    </div>
+    <div style="padding:20px">
+      <textarea class="form-control" id="batch-input" rows="5" placeholder="Paste one URL per line..." style="font-family:'JetBrains Mono',monospace;font-size:13px"></textarea>
+      <button class="btn btn-primary" style="margin-top:10px" onclick="analyzeBatch()">Analyze All</button>
+      <div id="batch-result" style="margin-top:16px"></div>
+    </div>
+  </div>
+</main>
+<div id="toast-container"></div>
+<script src="/js/auth.js"></script>
+<script>
+requireAuth(); renderTopbarUser();
+
+function verdictBadgeClass(verdict) {
+  if (verdict === 'Safe') return 'badge-green';
+  if (verdict === 'Suspicious') return 'badge-yellow';
+  return 'badge-red';
+}
+
+function renderResult(r) {
+  const cls = verdictBadgeClass(r.verdict);
+  let findingsHtml;
+  if (!r.findings || r.findings.length === 0) {
+    findingsHtml = '<div style="color:var(--accent-green,#00ff88);font-size:13px;margin-top:8px">✅ No red flags detected by any heuristic check.</div>';
+  } else {
+    findingsHtml = '<div style="margin-top:12px">' + r.findings.map(f => `
+      <div style="border-bottom:1px solid var(--border);padding:8px 0;font-size:13px">
+        <span style="background:rgba(255,255,255,0.06);padding:1px 6px;border-radius:4px;font-family:monospace;font-size:11px;margin-right:8px">+${f.points}</span>
+        <strong>${f.check}</strong>
+        <div style="color:var(--text-muted);margin-top:2px">${f.detail}</div>
+      </div>`).join('') + '</div>';
+  }
+  return `
+    <div class="info-box" style="border-left:3px solid ${r.verdict === 'Safe' ? '#00ff88' : r.verdict === 'Suspicious' ? '#ffaa00' : '#ff3366'}">
+      <div class="flex items-center justify-between">
+        <span class="badge ${cls}">${r.verdict}</span>
+        <span style="color:var(--text-muted);font-size:12px;font-family:monospace">${r.score}/100 risk score</span>
+      </div>
+      <div style="font-family:monospace;font-size:12px;color:var(--accent,#00c8ff);word-break:break-all;margin-top:8px">${r.url}</div>
+      ${findingsHtml}
+    </div>`;
+}
+
+async function analyzeSingle() {
+  const url = document.getElementById('url-input').value.trim();
+  const resultDiv = document.getElementById('single-result');
+  if (!url) { toast('Enter a URL first.', 'error'); return; }
+  resultDiv.innerHTML = '<div class="spinner"></div>';
+  try {
+    const r = await apiPost('/phishing/analyze', { url });
+    resultDiv.innerHTML = renderResult(r);
+  } catch (e) {
+    resultDiv.innerHTML = '';
+    toast('Analysis failed: ' + e.message, 'error');
+  }
+}
+
+async function analyzeBatch() {
+  const raw = document.getElementById('batch-input').value;
+  const urls = raw.split('\n').map(s => s.trim()).filter(Boolean);
+  const resultDiv = document.getElementById('batch-result');
+  if (urls.length === 0) { toast('Paste at least one URL first.', 'error'); return; }
+  resultDiv.innerHTML = '<div class="spinner"></div>';
+  try {
+    const data = await apiPost('/phishing/analyze-batch', { urls });
+    resultDiv.innerHTML = data.results.map(renderResult).join('');
+  } catch (e) {
+    resultDiv.innerHTML = '';
+    toast('Batch analysis failed: ' + e.message, 'error');
+  }
+}
+</script>
+</body>
+</html>
